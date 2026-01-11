@@ -1,0 +1,19 @@
+<div
+  class="reader-header"
+  [style.color]="currentTheme?.fg ?? ''"
+  [style.background]="currentTheme?.bg ?? ''"
+  [class.visible]="headerVisible"
+  (mouseenter)="onHeaderMouseEnter()"
+  (mouseleave)="onHeaderMouseLeave()"
+>
+  <button class="icon-btn" (click)="showChapters.emit()" title="Chapters">
+    <span aria-label="Chapters" class="icon-chapters">☰</span>
+  </button>
+  @if (currentChapterName) {
+    <span class="chapter-title">{{ currentChapterName }}</span>
+  }
+  <button class="icon-btn" (click)="showControls.emit()" title="Settings">
+    <span aria-label="Settings" class="icon-settings">⚙</span>
+  </button>
+</div>
+

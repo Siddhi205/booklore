@@ -1,4 +1,4 @@
-import {Component, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, OnInit, HostListener} from '@angular/core';
+import {Component, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Subject, takeUntil} from 'rxjs';
 import {FoliateLoaderService} from './services/foliate-loader.service';
@@ -6,11 +6,12 @@ import {FoliateViewManagerService} from './services/foliate-view-manager.service
 import {ReaderStateService} from './services/reader-state.service';
 import {ReaderStyleService} from './services/reader-style.service';
 import {Theme, themes} from './services/reader-themes';
+import { ReaderHeaderComponent } from './reader-header.component';
 
 @Component({
   selector: 'app-foliate-reader',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ReaderHeaderComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [
     FoliateLoaderService,
@@ -44,8 +45,6 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   bookCoverUrl: string | null = null;
   bookTitle: string = '';
   bookAuthors: string = '';
-
-  headerVisible = false;
 
   get lineHeight() {
     return this.stateService.currentState.lineHeight;
@@ -88,7 +87,6 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.headerVisible = false;
     try {
       await this.initializeFoliate();
       await this.setupView();
@@ -284,28 +282,6 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
 
   decreaseMaxBlockSize() {
     this.stateService.updateMaxBlockSize(-60);
-  }
-
-  @HostListener('document:mousemove', ['$event'])
-  onDocumentMouseMove(event: MouseEvent) {
-    // Show header if mouse is within 40px from the top of the viewport
-    if (event.clientY <= 40) {
-      this.headerVisible = true;
-    } else if (!this.isHeaderHovered) {
-      this.headerVisible = false;
-    }
-  }
-
-  isHeaderHovered = false;
-
-  onHeaderMouseEnter() {
-    this.isHeaderHovered = true;
-    this.headerVisible = true;
-  }
-
-  onHeaderMouseLeave() {
-    this.isHeaderHovered = false;
-    this.headerVisible = false;
   }
 
   ngOnDestroy(): void {
