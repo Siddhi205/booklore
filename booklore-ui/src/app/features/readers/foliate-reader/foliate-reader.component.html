@@ -1,10 +1,10 @@
 <div
   class="reader"
-  [style.background-color]="currentTheme.bg ?? ''"
+  [style.background-color]="stateService.currentState.theme.bg ?? ''"
 >
   <app-reader-header
     [currentChapterName]="currentChapterName"
-    [currentTheme]="currentTheme"
+    [currentTheme]="stateService.currentState.theme"
     (showChapters)="showChapters = true"
     (showControls)="showControls = true"
   ></app-reader-header>
@@ -25,38 +25,9 @@
 
   @if (showControls) {
     <app-settings-dialog
-      [themes]="themes"
-      [fonts]="fonts"
-      [isDarkMode]="isDarkMode"
-      [fontFamily]="fontFamily"
-      [fontSize]="fontSize"
-      [lineHeight]="lineHeight"
-      [maxColumnCount]="maxColumnCount"
-      [gap]="gap"
-      [justify]="justify"
-      [hyphenate]="hyphenate"
-      [currentTheme]="currentTheme"
-      [maxInlineSize]="maxInlineSize"
-      [maxBlockSize]="maxBlockSize"
+      [stateService]="stateService"
+      [viewManager]="viewManager"
       (close)="showControls = false"
-      (prevPage)="prevPage()"
-      (nextPage)="nextPage()"
-      (onFontFamilyChange)="onFontFamilyChange($event)"
-      (increaseFontSize)="increaseFontSize()"
-      (decreaseFontSize)="decreaseFontSize()"
-      (increaseLineHeight)="increaseLineHeight()"
-      (decreaseLineHeight)="decreaseLineHeight()"
-      (increaseMaxColumnCount)="increaseMaxColumnCount()"
-      (decreaseMaxColumnCount)="decreaseMaxColumnCount()"
-      (setGap)="setGap($event)"
-      (toggleJustify)="toggleJustify()"
-      (toggleHyphenate)="toggleHyphenate()"
-      (toggleLightDark)="toggleLightDark()"
-      (onThemeChange)="onThemeChange($event)"
-      (increaseMaxInlineSize)="increaseMaxInlineSize()"
-      (decreaseMaxInlineSize)="decreaseMaxInlineSize()"
-      (increaseMaxBlockSize)="increaseMaxBlockSize()"
-      (decreaseMaxBlockSize)="decreaseMaxBlockSize()"
     ></app-settings-dialog>
   }
 </div>

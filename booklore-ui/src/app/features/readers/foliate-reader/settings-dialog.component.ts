@@ -1,5 +1,7 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {DecimalPipe} from '@angular/common';
+import {ReaderStateService} from './services/reader-state.service';
+import {FoliateViewManagerService} from './services/foliate-view-manager.service';
 
 @Component({
   selector: 'app-settings-dialog',
@@ -9,37 +11,95 @@ import {DecimalPipe} from '@angular/common';
   styleUrls: ['./settings-dialog.component.scss']
 })
 export class SettingsDialogComponent {
-  @Input() themes: any[] = [];
-  @Input() fonts: any[] = [];
-  @Input() isDarkMode: boolean = false;
-  @Input() fontFamily!: string;
-  @Input() fontSize!: number;
-  @Input() lineHeight!: number;
-  @Input() maxColumnCount!: number;
-  @Input() gap!: number;
-  @Input() justify!: boolean;
-  @Input() hyphenate!: boolean;
-  @Input() currentTheme: any;
-  @Input() maxInlineSize!: number;
-  @Input() maxBlockSize!: number;
+  @Input() stateService!: ReaderStateService;
+  @Input() viewManager!: FoliateViewManagerService;
 
   @Output() close = new EventEmitter<void>();
-  @Output() prevPage = new EventEmitter<void>();
-  @Output() nextPage = new EventEmitter<void>();
-  @Output() onFontFamilyChange = new EventEmitter<Event>();
-  @Output() increaseFontSize = new EventEmitter<void>();
-  @Output() decreaseFontSize = new EventEmitter<void>();
-  @Output() increaseLineHeight = new EventEmitter<void>();
-  @Output() decreaseLineHeight = new EventEmitter<void>();
-  @Output() increaseMaxColumnCount = new EventEmitter<void>();
-  @Output() decreaseMaxColumnCount = new EventEmitter<void>();
-  @Output() setGap = new EventEmitter<number>();
-  @Output() toggleJustify = new EventEmitter<void>();
-  @Output() toggleHyphenate = new EventEmitter<void>();
-  @Output() toggleLightDark = new EventEmitter<void>();
-  @Output() onThemeChange = new EventEmitter<Event>();
-  @Output() increaseMaxInlineSize = new EventEmitter<void>();
-  @Output() decreaseMaxInlineSize = new EventEmitter<void>();
-  @Output() increaseMaxBlockSize = new EventEmitter<void>();
-  @Output() decreaseMaxBlockSize = new EventEmitter<void>();
+
+  activeTab: 'theme' | 'typography' | 'layout' = 'theme';
+
+  get state() {
+    return this.stateService.currentState;
+  }
+
+  get themes() {
+    return this.stateService.themes;
+  }
+
+  get fonts() {
+    return this.stateService.fonts;
+  }
+
+  prevPage() {
+    this.viewManager.prevPage();
+  }
+
+  nextPage() {
+    this.viewManager.nextPage();
+  }
+
+  setFontFamily(value: string) {
+    this.stateService.setFontFamily(value);
+  }
+
+  increaseFontSize() {
+    this.stateService.updateFontSize(1);
+  }
+
+  decreaseFontSize() {
+    this.stateService.updateFontSize(-1);
+  }
+
+  increaseLineHeight() {
+    this.stateService.updateLineHeight(0.1);
+  }
+
+  decreaseLineHeight() {
+    this.stateService.updateLineHeight(-0.1);
+  }
+
+  increaseMaxColumnCount() {
+    this.stateService.updateMaxColumnCount(1);
+  }
+
+  decreaseMaxColumnCount() {
+    this.stateService.updateMaxColumnCount(-1);
+  }
+
+  setGap(value: number) {
+    const delta = value - this.state.gap;
+    this.stateService.updateGap(delta);
+  }
+
+  toggleJustify() {
+    this.stateService.toggleJustify();
+  }
+
+  toggleHyphenate() {
+    this.stateService.toggleHyphenate();
+  }
+
+  increaseMaxInlineSize() {
+    this.stateService.updateMaxInlineSize(40);
+  }
+
+  decreaseMaxInlineSize() {
+    this.stateService.updateMaxInlineSize(-40);
+  }
+
+  increaseMaxBlockSize() {
+    this.stateService.updateMaxBlockSize(60);
+  }
+
+  decreaseMaxBlockSize() {
+    this.stateService.updateMaxBlockSize(-60);
+  }
+
+  toggleDarkMode() {
+    this.stateService.toggleDarkMode();
+  }
+
+  onThemeChange(themeName: string) {
+    this.stateService.setThemeByName(themeName);
+  }
 }

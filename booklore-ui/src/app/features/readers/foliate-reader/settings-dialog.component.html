@@ -1,113 +1,176 @@
 <div class="dialog-overlay" (click)="close.emit()">
   <div class="dialog" (click)="$event.stopPropagation()">
-    <div class="dialog-header">
-      <h2>Reader Settings</h2>
+    <div class="tabs-row">
+      <div class="tabs">
+        <button
+          class="tab"
+          [class.active]="activeTab === 'theme'"
+          (click)="activeTab = 'theme'">
+          Theme
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'typography'"
+          (click)="activeTab = 'typography'">
+          Typography
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'layout'"
+          (click)="activeTab = 'layout'">
+          Layout
+        </button>
+      </div>
       <button class="close-btn" (click)="close.emit()">✕</button>
     </div>
 
     <div class="dialog-body">
-      <section>
-        <h3>Navigation</h3>
-        <div class="nav-buttons">
-          <button (click)="prevPage.emit()">← Previous</button>
-          <button (click)="nextPage.emit()">Next →</button>
-        </div>
-      </section>
+      @if (activeTab === 'theme') {
+        <div class="tab-content">
+          <div class="section-header dark-mode-header">
+            Dark Mode
+            <span class="mode-switch-wrapper">
+              <span class="mode-icon sun" [class.active]="!state.isDark">☀️</span>
+              <button class="switch" [class.active]="state.isDark" (click)="toggleDarkMode()">
+                <span class="slider"></span>
+              </button>
+              <span class="mode-icon moon" [class.active]="state.isDark">🌙</span>
+            </span>
+          </div>
 
-      <section>
-        <h3>Typography</h3>
-        <div class="control">
-          <label>Font Family</label>
-          <select [value]="fontFamily" (change)="onFontFamilyChange.emit($event)">
-            @for (font of fonts; track font.value) {
-              <option [value]="font.value">{{ font.name }}</option>
-            }
-          </select>
-        </div>
-        <div class="control">
-          <label>Font Size</label>
-          <div class="stepper">
-            <button (click)="decreaseFontSize.emit()">−</button>
-            <span>{{ fontSize }}px</span>
-            <button (click)="increaseFontSize.emit()">+</button>
-          </div>
-        </div>
-        <div class="control">
-          <label>Line Height</label>
-          <div class="stepper">
-            <button (click)="decreaseLineHeight.emit()">−</button>
-            <span>{{ lineHeight.toFixed(1) }}</span>
-            <button (click)="increaseLineHeight.emit()">+</button>
-          </div>
-        </div>
-        <div class="control">
-          <label>Columns</label>
-          <div class="stepper">
-            <button (click)="decreaseMaxColumnCount.emit()">−</button>
-            <span>{{ maxColumnCount }}</span>
-            <button (click)="increaseMaxColumnCount.emit()">+</button>
-          </div>
-        </div>
-        <div class="control">
-          <label>Max Width</label>
-          <div class="stepper">
-            <button (click)="decreaseMaxInlineSize.emit()">−</button>
-            <span>{{ maxInlineSize }}px</span>
-            <button (click)="increaseMaxInlineSize.emit()">+</button>
-          </div>
-        </div>
-        <div class="control">
-          <label>Max Height</label>
-          <div class="stepper">
-            <button (click)="decreaseMaxBlockSize.emit()">−</button>
-            <span>{{ maxBlockSize }}px</span>
-            <button (click)="increaseMaxBlockSize.emit()">+</button>
-          </div>
-        </div>
-        <div class="control">
-          <label>Gap</label>
-          <input
-            #gapInput
-            type="range"
-            min="0"
-            max="0.5"
-            step="0.01"
-            [value]="gap"
-            (input)="setGap.emit(gapInput.valueAsNumber)"
-          />
-          <span class="value">{{ (gap * 100) | number : '1.0-0' }}%</span>
-        </div>
-        <div class="control">
-          <label>Justify Text</label>
-          <button class="toggle" [class.active]="justify" (click)="toggleJustify.emit()">
-            {{ justify ? 'On' : 'Off' }}
-          </button>
-        </div>
-        <div class="control">
-          <label>Hyphenate</label>
-          <button class="toggle" [class.active]="hyphenate" (click)="toggleHyphenate.emit()">
-            {{ hyphenate ? 'On' : 'Off' }}
-          </button>
-        </div>
-      </section>
-
-      <section>
-        <h3>Appearance</h3>
-        <div class="control">
-          <label>Theme</label>
-          <select [value]="currentTheme?.name" (change)="onThemeChange.emit($event)">
+          <div class="section-header">Theme Colors</div>
+          <div class="theme-grid">
             @for (theme of themes; track theme.name) {
-              <option [value]="theme.name">{{ theme.label }}</option>
+              <label class="theme-option">
+                <input
+                  type="radio"
+                  name="theme"
+                  [value]="theme.name"
+                  [checked]="state.theme.name === theme.name"
+                  (change)="onThemeChange(theme.name)">
+                <div class="theme-card">
+                  <div class="theme-colors">
+                    <span class="color-swatch" [style.background-color]="state.isDark ? theme.dark.bg : theme.light.bg"></span>
+                    <span class="color-swatch" [style.background-color]="state.isDark ? theme.dark.fg : theme.light.fg"></span>
+                    <span class="color-swatch" [style.background-color]="state.isDark ? theme.dark.link : theme.light.link"></span>
+                  </div>
+                  <span class="theme-name">{{ theme.label }}</span>
+                </div>
+              </label>
             }
-          </select>
+          </div>
         </div>
-        <div class="control">
-          <label>Mode</label>
-          <button class="toggle" [class.active]="isDarkMode" (click)="toggleLightDark.emit()">
-            {{ isDarkMode ? '🌙 Dark' : '☀ Light' }}
-          </button>
+      }
+
+      @if (activeTab === 'typography') {
+        <div class="tab-content">
+          <div class="section-header">Font Family</div>
+          <div class="font-grid">
+            @for (font of fonts; track font.value) {
+              <button
+                class="font-option"
+                [class.active]="state.fontFamily === font.value"
+                [style.font-family]="font.value"
+                (click)="setFontFamily(font.value)">
+                <span class="font-preview">Aa</span>
+                <span class="font-name">{{ font.name }}</span>
+              </button>
+            }
+          </div>
+
+          <div class="section-header">Font Settings</div>
+          <div class="control">
+            <label>Font Size</label>
+            <div class="control-right">
+              <div class="stepper">
+                <button (click)="decreaseFontSize()">−</button>
+                <span>{{ state.fontSize }}</span>
+                <button (click)="increaseFontSize()">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="control">
+            <label>Line Height</label>
+            <div class="control-right">
+              <div class="stepper">
+                <button (click)="decreaseLineHeight()">−</button>
+                <span>{{ state.lineHeight | number:'1.1-1' }}</span>
+                <button (click)="increaseLineHeight()">+</button>
+              </div>
+            </div>
+          </div>
         </div>
-      </section>
+      }
+
+      @if (activeTab === 'layout') {
+        <div class="tab-content">
+          <div class="section-header">Layout</div>
+
+          <div class="control">
+            <label>Max Columns</label>
+            <div class="control-right">
+              <div class="stepper">
+                <button (click)="decreaseMaxColumnCount()">−</button>
+                <span>{{ state.maxColumnCount }}</span>
+                <button (click)="increaseMaxColumnCount()">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="control">
+            <label>Column Gap</label>
+            <div class="control-right gap-control">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                [value]="state.gap"
+                (input)="setGap(+$any($event.target).value)"
+              />
+              <span class="value">{{ state.gap }}px</span>
+            </div>
+          </div>
+
+          <div class="control">
+            <label>Max Width</label>
+            <div class="control-right">
+              <div class="stepper">
+                <button (click)="decreaseMaxInlineSize()">−</button>
+                <span>{{ state.maxInlineSize }}</span>
+                <button (click)="increaseMaxInlineSize()">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="control">
+            <label>Max Height</label>
+            <div class="control-right">
+              <div class="stepper">
+                <button (click)="decreaseMaxBlockSize()">−</button>
+                <span>{{ state.maxBlockSize }}</span>
+                <button (click)="increaseMaxBlockSize()">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-header">Text Options</div>
+
+          <div class="toggle-control">
+            <span>Justify Text</span>
+            <button class="switch" [class.active]="state.justify" (click)="toggleJustify()">
+              <span class="slider"></span>
+            </button>
+          </div>
+
+          <div class="toggle-control">
+            <span>Hyphenate</span>
+            <button class="switch" [class.active]="state.hyphenate" (click)="toggleHyphenate()">
+              <span class="slider"></span>
+            </button>
+          </div>
+        </div>
+      }
     </div>
   </div>
 </div>

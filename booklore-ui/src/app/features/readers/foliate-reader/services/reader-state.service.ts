@@ -13,6 +13,7 @@ export interface ReaderState {
   maxInlineSize: number;
   maxBlockSize: number;
   fontFamily: string;
+  isDark: boolean;
 }
 
 @Injectable({
@@ -35,6 +36,7 @@ export class ReaderStateService {
     maxInlineSize: 720,
     maxBlockSize: 1440,
     fontFamily: 'serif',
+    isDark: true,
   };
 
   private stateSubject = new BehaviorSubject<ReaderState>(this.initialState);
@@ -43,6 +45,14 @@ export class ReaderStateService {
   get currentState(): ReaderState {
     return this.stateSubject.value;
   }
+
+  readonly themes = themes;
+  readonly fonts = [
+    {name: 'Serif', value: 'serif'},
+    {name: 'Sans-Serif', value: 'sans-serif'},
+    {name: 'Monospace', value: 'monospace'},
+    {name: 'Cursive', value: 'cursive'},
+  ];
 
   updateLineHeight(delta: number): void {
     const current = this.currentState.lineHeight;
@@ -95,6 +105,33 @@ export class ReaderStateService {
   updateMaxBlockSize(delta: number): void {
     const newValue = Math.max(600, Math.min(2400, this.currentState.maxBlockSize + delta));
     this.updateState({maxBlockSize: newValue});
+  }
+
+  toggleDarkMode() {
+    const currentTheme = this.currentState.theme;
+    const newIsDark = !this.currentState.isDark;
+
+    const newTheme = {
+      ...currentTheme,
+      fg: newIsDark ? currentTheme.dark.fg : currentTheme.light.fg,
+      bg: newIsDark ? currentTheme.dark.bg : currentTheme.light.bg,
+      link: newIsDark ? currentTheme.dark.link : currentTheme.light.link,
+    };
+
+    this.updateState({theme: newTheme, isDark: newIsDark});
+  }
+
+  setThemeByName(themeName: string) {
+    const theme = this.themes.find(t => t.name === themeName);
+    if (theme) {
+      const newTheme = {
+        ...theme,
+        fg: this.currentState.isDark ? theme.dark.fg : theme.light.fg,
+        bg: this.currentState.isDark ? theme.dark.bg : theme.light.bg,
+        link: this.currentState.isDark ? theme.dark.link : theme.light.link,
+      };
+      this.setTheme(newTheme);
+    }
   }
 
   private updateState(partial: Partial<ReaderState>): void {
