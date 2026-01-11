@@ -25,10 +25,18 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   themes = themes;
+  fonts = [
+    {name: 'Serif', value: 'serif'},
+    {name: 'Sans-Serif', value: 'sans-serif'},
+    {name: 'Monospace', value: 'monospace'},
+    {name: 'Cursive', value: 'cursive'},
+  ];
 
   isDarkMode = false; // UI state for toggle
 
   showControls = false; // Add this property for dialog visibility
+
+  currentChapterName: string | null = null;
 
   get lineHeight() {
     return this.stateService.currentState.lineHeight;
@@ -54,19 +62,12 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     return this.stateService.currentState.fontSize;
   }
 
-  get currentTheme() {
-    return this.stateService.currentState.theme;
+  get fontFamily() {
+    return this.stateService.currentState.fontFamily;
   }
 
-  get isThemeDark() {
-    // Detect if current theme is dark by comparing fg/bg to dark variant
-    const theme = this.currentTheme;
-    return (
-      theme &&
-      theme.dark &&
-      theme.fg === theme.dark.fg &&
-      theme.bg === theme.dark.bg
-    );
+  get currentTheme() {
+    return this.stateService.currentState.theme;
   }
 
   constructor(
@@ -124,14 +125,18 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
       .subscribe(event => {
         switch (event.type) {
           case 'load':
-            // Apply styles and go to start when book loads
             this.applyStyles();
             this.viewManager.goToStart();
             break;
-          case 'relocate':
-            console.log(event)
+          case 'relocate': {
+            const chapterLabel = event?.detail?.tocItem?.label;
+            if (chapterLabel && chapterLabel !== this.currentChapterName) {
+              this.currentChapterName = chapterLabel;
+            }
             break;
+          }
           case 'error':
+            console.error('Foliate view error:', event.detail);
             break;
         }
       });
@@ -211,6 +216,13 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
 
   decreaseFontSize() {
     this.stateService.updateFontSize(-1);
+  }
+
+  onFontFamilyChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    if (target?.value) {
+      this.stateService.setFontFamily(target.value);
+    }
   }
 
   onThemeChange(event: Event) {

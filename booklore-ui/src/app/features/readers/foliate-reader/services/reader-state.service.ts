@@ -12,6 +12,7 @@ export interface ReaderState {
   theme: Theme;
   maxInlineSize: number;
   maxBlockSize: number;
+  fontFamily: string;
 }
 
 @Injectable({
@@ -30,9 +31,10 @@ export class ReaderStateService {
       fg: themes[0].light.fg,
       bg: themes[0].light.bg,
       link: themes[0].light.link,
-    }, // Set light theme as default with correct variant
+    },
     maxInlineSize: 720,
     maxBlockSize: 1440,
+    fontFamily: 'serif',
   };
 
   private stateSubject = new BehaviorSubject<ReaderState>(this.initialState);
@@ -79,6 +81,10 @@ export class ReaderStateService {
 
   setTheme(theme: Theme): void {
     this.updateState({theme});
+  }
+
+  setFontFamily(font: string): void {
+    this.updateState({fontFamily: font});
   }
 
   updateMaxInlineSize(delta: number): void {

@@ -8,7 +8,7 @@ export class ReaderStyleService {
 
   generateCSS(state: ReaderState): string {
     const {
-      lineHeight, justify, hyphenate, fontSize, theme
+      lineHeight, justify, hyphenate, fontSize, theme, fontFamily
     } = state;
     const userStylesheet = ''; // Placeholder for user styles
     const overrideFont = false; // Placeholder
@@ -28,6 +28,7 @@ export class ReaderStyleService {
             color-scheme: light dark;
             color: ${theme.fg || theme.light.fg};
             font-size: ${fontSize}px;
+            font-family: ${fontFamily};
         }
         a:any-link {
             color: ${theme.link || theme.light.link};

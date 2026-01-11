@@ -1,4 +1,9 @@
 <div class="reader" [style.background-color]="currentTheme.bg ?? ''">
+  <div class="reader-header" [style.color]="currentTheme.fg ?? ''">
+    @if (currentChapterName) {
+      <span>{{ currentChapterName }}</span>
+    }
+  </div>
   <div id="foliate-container"></div>
   <button class="settings-btn" (click)="showControls = true">
     ⚙ Settings
@@ -22,6 +27,14 @@
 
           <section>
             <h3>Typography</h3>
+            <div class="control">
+              <label>Font Family</label>
+              <select [value]="fontFamily" (change)="onFontFamilyChange($event)">
+                @for (font of fonts; track font.value) {
+                  <option [value]="font.value">{{ font.name }}</option>
+                }
+              </select>
+            </div>
             <div class="control">
               <label>Font Size</label>
               <div class="stepper">

@@ -80,4 +80,30 @@ export class FoliateViewManagerService {
       this.eventSubject.next({type: 'error', detail: e.detail});
     });
   }
+
+  /**
+   * Returns a flat list of chapters from the EPUB table of contents.
+   * Each chapter has a label (name) and href (link to navigate).
+   */
+  getChapters(): { label: string; href: string }[] {
+    if (!this.view?.book?.toc) return [];
+
+    // Recursive helper to flatten nested TOC items
+    const flattenToc = (items: any[], result: any[] = []): any[] => {
+      for (const item of items) {
+        result.push(item);
+        if (item.subitems?.length) {
+          flattenToc(item.subitems, result);
+        }
+      }
+      return result;
+    };
+
+    const flattened = flattenToc(this.view.book.toc);
+
+    return flattened.map(item => ({
+      label: item.label,
+      href: item.href
+    }));
+  }
 }
