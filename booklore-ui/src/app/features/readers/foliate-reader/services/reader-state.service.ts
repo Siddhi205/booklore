@@ -22,8 +22,13 @@ export class ReaderStateService {
     hyphenate: true,
     maxColumnCount: 2,
     gap: 0.05,
-    fontSize: 16, // default font size
-    theme: themes[0],
+    fontSize: 16,
+    theme: {
+      ...themes[0],
+      fg: themes[0].light.fg,
+      bg: themes[0].light.bg,
+      link: themes[0].light.link,
+    }, // Set light theme as default with correct variant
   };
 
   private stateSubject = new BehaviorSubject<ReaderState>(this.initialState);

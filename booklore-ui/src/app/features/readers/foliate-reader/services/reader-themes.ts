@@ -9,7 +9,6 @@ export interface Theme {
   label: string;
   light: ThemeMode;
   dark: ThemeMode;
-  // For active theme
   fg?: string;
   bg?: string;
   link?: string;
@@ -17,14 +16,19 @@ export interface Theme {
 
 export const themes: Theme[] = [
   {
-    name: 'default', label: 'Default',
-    light: {fg: '#000000', bg: '#ffffff', link: '#0066cc'},
-    dark: {fg: '#e0e0e0', bg: '#222222', link: '#77bbee'},
+    name: 'grass', label: 'Grass',
+    light: {fg: '#232c16', bg: '#d7dbbd', link: '#177b4d'},
+    dark: {fg: '#d8deba', bg: '#333627', link: '#a6d608'},
   },
   {
     name: 'angular', label: 'Angular',
     light: {fg: '#212529', bg: '#ffffff', link: '#dd0031'},
     dark: {fg: '#dee2e6', bg: '#343a40', link: '#ff4081'},
+  },
+  {
+    name: 'default', label: 'Default',
+    light: {fg: '#000000', bg: '#ffffff', link: '#0066cc'},
+    dark: {fg: '#e0e0e0', bg: '#222222', link: '#77bbee'},
   },
   {
     name: 'gray', label: 'Gray',
@@ -35,11 +39,6 @@ export const themes: Theme[] = [
     name: 'sepia', label: 'Sepia',
     light: {fg: '#5b4636', bg: '#f1e8d0', link: '#008b8b'},
     dark: {fg: '#ffd595', bg: '#342e25', link: '#48d1cc'},
-  },
-  {
-    name: 'grass', label: 'Grass',
-    light: {fg: '#232c16', bg: '#d7dbbd', link: '#177b4d'},
-    dark: {fg: '#d8deba', bg: '#333627', link: '#a6d608'},
   },
   {
     name: 'cherry', label: 'Cherry',

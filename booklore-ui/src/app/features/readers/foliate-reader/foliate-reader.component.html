@@ -1,58 +1,91 @@
-<div class="reader" [style.background-color]="currentTheme.bg">
-  @if (debugInfo) {
-    <div class="debug-info">
-      <h3>Debug Info:</h3>
-      <pre>{{ debugInfo }}</pre>
+<div class="reader" [style.background-color]="currentTheme.bg ?? ''">
+  <div id="foliate-container"></div>
+  <button class="settings-btn" (click)="showControls = true">
+    ⚙ Settings
+  </button>
+  @if (showControls) {
+    <div class="dialog-overlay" (click)="showControls = false">
+      <div class="dialog" (click)="$event.stopPropagation()">
+        <div class="dialog-header">
+          <h2>Reader Settings</h2>
+          <button class="close-btn" (click)="showControls = false">✕</button>
+        </div>
+
+        <div class="dialog-body">
+          <section>
+            <h3>Navigation</h3>
+            <div class="nav-buttons">
+              <button (click)="prevPage()">← Previous</button>
+              <button (click)="nextPage()">Next →</button>
+            </div>
+          </section>
+
+          <section>
+            <h3>Typography</h3>
+            <div class="control">
+              <label>Font Size</label>
+              <div class="stepper">
+                <button (click)="decreaseFontSize()">−</button>
+                <span>{{ fontSize }}px</span>
+                <button (click)="increaseFontSize()">+</button>
+              </div>
+            </div>
+            <div class="control">
+              <label>Line Height</label>
+              <div class="stepper">
+                <button (click)="decreaseLineHeight()">−</button>
+                <span>{{ lineHeight.toFixed(1) }}</span>
+                <button (click)="increaseLineHeight()">+</button>
+              </div>
+            </div>
+            <div class="control">
+              <label>Columns</label>
+              <div class="stepper">
+                <button (click)="decreaseMaxColumnCount()">−</button>
+                <span>{{ maxColumnCount }}</span>
+                <button (click)="increaseMaxColumnCount()">+</button>
+              </div>
+            </div>
+            <div class="control">
+              <label>Gap</label>
+              <input
+                #gapInput
+                type="range"
+                min="0"
+                max="0.5"
+                step="0.01"
+                [value]="gap"
+                (input)="setGap(gapInput.valueAsNumber)"
+              />
+              <span class="value">{{ (gap * 100) | number : '1.0-0' }}%</span>
+            </div>
+            <div class="control">
+              <label>Justify Text</label>
+              <button class="toggle" [class.active]="justify" (click)="toggleJustify()">
+                {{ justify ? 'On' : 'Off' }}
+              </button>
+            </div>
+          </section>
+
+          <section>
+            <h3>Appearance</h3>
+            <div class="control">
+              <label>Theme</label>
+              <select [value]="currentTheme.name" (change)="onThemeChange($event)">
+                @for (theme of themes; track theme.name) {
+                  <option [value]="theme.name">{{ theme.label }}</option>
+                }
+              </select>
+            </div>
+            <div class="control">
+              <label>Mode</label>
+              <button class="toggle" [class.active]="isDarkMode" (click)="toggleLightDark()">
+                {{ isDarkMode ? '🌙 Dark' : '☀ Light' }}
+              </button>
+            </div>
+          </section>
+        </div>
+      </div>
     </div>
   }
-  <div id="foliate-container"></div>
-  <div class="navigation">
-    <button (click)="prevPage()">‹ Prev</button>
-    <button (click)="nextPage()">Next ›</button>
-    <div class="font-size-controls">
-      <button (click)="decreaseFontSize()">Font Size -</button>
-      <span>{{ fontSize }}px</span>
-      <button (click)="increaseFontSize()">Font Size +</button>
-    </div>
-    <div class="line-height-controls">
-      <button (click)="decreaseLineHeight()">Line Height -</button>
-      <span>{{ lineHeight.toFixed(1) }}</span>
-      <button (click)="increaseLineHeight()">Line Height +</button>
-    </div>
-    <div class="column-count-controls">
-      <button (click)="decreaseMaxColumnCount()">Columns -</button>
-      <span>{{ maxColumnCount }}</span>
-      <button (click)="increaseMaxColumnCount()">Columns +</button>
-    </div>
-    <div class="gap-controls">
-      <button (click)="decreaseGap()">Gap -</button>
-      <span>{{ (gap * 100) | number : '1.0-0' }}%</span>
-      <button (click)="increaseGap()">Gap +</button>
-      <input
-        type="range"
-        min="0"
-        max="0.5"
-        step="0.01"
-        [value]="gap"
-        (input)="setGap($event.target.valueAsNumber)"
-        style="width: 80px; vertical-align: middle;"
-      />
-    </div>
-    <div class="justify-controls">
-      <button (click)="toggleJustify()">
-        {{ justify ? 'No Justify' : 'Justify' }}
-      </button>
-    </div>
-    <div class="theme-controls">
-      <label for="theme-select">Theme:</label>
-      <select id="theme-select" [value]="currentTheme.name" (change)="onThemeChange($event)">
-        @for (theme of themes; track theme.name) {
-          <option [value]="theme.name">{{ theme.label }}</option>
-        }
-      </select>
-      <button (click)="toggleLightDark()">
-        {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
-      </button>
-    </div>
-  </div>
 </div>

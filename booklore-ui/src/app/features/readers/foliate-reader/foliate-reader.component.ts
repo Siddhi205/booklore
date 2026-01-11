@@ -24,10 +24,11 @@ import {Theme, themes} from './services/reader-themes';
 export class FoliateReaderComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  debugInfo = '';
   themes = themes;
 
   isDarkMode = false; // UI state for toggle
+
+  showControls = false; // Add this property for dialog visibility
 
   get lineHeight() {
     return this.stateService.currentState.lineHeight;
@@ -80,17 +81,13 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
       this.subscribeToStateChanges();
       this.subscribeToViewEvents();
     } catch (err) {
-      this.updateDebug(`ERROR: ${err}`);
+      // Error handling
     }
   }
 
   private async initializeFoliate(): Promise<void> {
-    this.updateDebug('Initializing Foliate...');
     await this.loaderService.loadFoliateScript();
-    this.updateDebug('Foliate script loaded');
-
     await this.loaderService.waitForCustomElement();
-    this.updateDebug('Custom element defined');
   }
 
   private async setupView(): Promise<void> {
@@ -103,31 +100,27 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   }
 
   private async loadBook(): Promise<void> {
-    this.updateDebug('Fetching EPUB...');
     await this.viewManager.loadEpub('/assets/fuck.epub');
-    this.updateDebug('EPUB opened successfully');
     this.applyStyles();
   }
 
   private subscribeToStateChanges(): void {
     this.stateService.state$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.applyStyles());
+      .subscribe(() => {
+        this.applyStyles();
+      });
   }
 
   private subscribeToViewEvents(): void {
     this.viewManager.events$
       .pipe(takeUntil(this.destroy$))
       .subscribe(event => {
+        console.log(event);
         switch (event.type) {
-          case 'load':
-            this.applyStyles();
-            break;
           case 'relocate':
-            this.updateDebug(`📍 Location: ${JSON.stringify(event.detail)}`);
             break;
           case 'error':
-            this.updateDebug(`❌ Error: ${JSON.stringify(event.detail)}`);
             break;
         }
       });
@@ -138,11 +131,6 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     if (renderer) {
       this.styleService.applyStylesToRenderer(renderer, this.stateService.currentState);
     }
-  }
-
-  private updateDebug(message: string): void {
-    this.debugInfo = message;
-    console.log(message);
   }
 
   prevPage() {
@@ -188,25 +176,18 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   }
 
   toggleLightDark() {
-    // Toggle between light and dark variants of the current theme
     const currentTheme = this.stateService.currentState.theme;
-    const isCurrentlyDark = this.isThemeDark;
+    const isCurrentlyDark = this.isDarkMode;
 
     const newTheme: Theme = {
       ...currentTheme,
-      fg: isCurrentlyDark ? currentTheme.light.fg : currentTheme.dark.fg,
-      bg: isCurrentlyDark ? currentTheme.light.bg : currentTheme.dark.bg,
-      link: isCurrentlyDark ? currentTheme.light.link : currentTheme.dark.link,
+      fg: !isCurrentlyDark ? currentTheme.dark.fg : currentTheme.light.fg,
+      bg: !isCurrentlyDark ? currentTheme.dark.bg : currentTheme.light.bg,
+      link: !isCurrentlyDark ? currentTheme.dark.link : currentTheme.light.link,
     };
 
-    // Set the theme with the toggled variant
     this.stateService.setTheme(newTheme);
-
     this.isDarkMode = !isCurrentlyDark;
-  }
-
-  setJustify(justify: boolean) {
-    this.stateService.setJustify(justify);
   }
 
   increaseFontSize() {
@@ -227,15 +208,14 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   setTheme(themeName: string) {
     const theme = this.themes.find(t => t.name === themeName);
     if (theme) {
-      // When selecting a new theme, initialize it with its light mode colors.
+      const useDark = this.isDarkMode;
       const newTheme: Theme = {
         ...theme,
-        fg: theme.light.fg,
-        bg: theme.light.bg,
-        link: theme.light.link,
+        fg: useDark ? theme.dark.fg : theme.light.fg,
+        bg: useDark ? theme.dark.bg : theme.light.bg,
+        link: useDark ? theme.dark.link : theme.light.link,
       };
       this.stateService.setTheme(newTheme);
-      this.isDarkMode = this.isThemeDark;
     }
   }
 
@@ -244,6 +224,4 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
     this.viewManager.destroy();
   }
-
-  protected readonly HTMLSelectElement = HTMLSelectElement;
 }
