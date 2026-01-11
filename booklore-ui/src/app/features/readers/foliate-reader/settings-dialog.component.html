@@ -1,0 +1,113 @@
+<div class="dialog-overlay" (click)="close.emit()">
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <div class="dialog-header">
+      <h2>Reader Settings</h2>
+      <button class="close-btn" (click)="close.emit()">✕</button>
+    </div>
+
+    <div class="dialog-body">
+      <section>
+        <h3>Navigation</h3>
+        <div class="nav-buttons">
+          <button (click)="prevPage.emit()">← Previous</button>
+          <button (click)="nextPage.emit()">Next →</button>
+        </div>
+      </section>
+
+      <section>
+        <h3>Typography</h3>
+        <div class="control">
+          <label>Font Family</label>
+          <select [value]="fontFamily" (change)="onFontFamilyChange.emit($event)">
+            @for (font of fonts; track font.value) {
+              <option [value]="font.value">{{ font.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="control">
+          <label>Font Size</label>
+          <div class="stepper">
+            <button (click)="decreaseFontSize.emit()">−</button>
+            <span>{{ fontSize }}px</span>
+            <button (click)="increaseFontSize.emit()">+</button>
+          </div>
+        </div>
+        <div class="control">
+          <label>Line Height</label>
+          <div class="stepper">
+            <button (click)="decreaseLineHeight.emit()">−</button>
+            <span>{{ lineHeight.toFixed(1) }}</span>
+            <button (click)="increaseLineHeight.emit()">+</button>
+          </div>
+        </div>
+        <div class="control">
+          <label>Columns</label>
+          <div class="stepper">
+            <button (click)="decreaseMaxColumnCount.emit()">−</button>
+            <span>{{ maxColumnCount }}</span>
+            <button (click)="increaseMaxColumnCount.emit()">+</button>
+          </div>
+        </div>
+        <div class="control">
+          <label>Max Width</label>
+          <div class="stepper">
+            <button (click)="decreaseMaxInlineSize.emit()">−</button>
+            <span>{{ maxInlineSize }}px</span>
+            <button (click)="increaseMaxInlineSize.emit()">+</button>
+          </div>
+        </div>
+        <div class="control">
+          <label>Max Height</label>
+          <div class="stepper">
+            <button (click)="decreaseMaxBlockSize.emit()">−</button>
+            <span>{{ maxBlockSize }}px</span>
+            <button (click)="increaseMaxBlockSize.emit()">+</button>
+          </div>
+        </div>
+        <div class="control">
+          <label>Gap</label>
+          <input
+            #gapInput
+            type="range"
+            min="0"
+            max="0.5"
+            step="0.01"
+            [value]="gap"
+            (input)="setGap.emit(gapInput.valueAsNumber)"
+          />
+          <span class="value">{{ (gap * 100) | number : '1.0-0' }}%</span>
+        </div>
+        <div class="control">
+          <label>Justify Text</label>
+          <button class="toggle" [class.active]="justify" (click)="toggleJustify.emit()">
+            {{ justify ? 'On' : 'Off' }}
+          </button>
+        </div>
+        <div class="control">
+          <label>Hyphenate</label>
+          <button class="toggle" [class.active]="hyphenate" (click)="toggleHyphenate.emit()">
+            {{ hyphenate ? 'On' : 'Off' }}
+          </button>
+        </div>
+      </section>
+
+      <section>
+        <h3>Appearance</h3>
+        <div class="control">
+          <label>Theme</label>
+          <select [value]="currentTheme?.name" (change)="onThemeChange.emit($event)">
+            @for (theme of themes; track theme.name) {
+              <option [value]="theme.name">{{ theme.label }}</option>
+            }
+          </select>
+        </div>
+        <div class="control">
+          <label>Mode</label>
+          <button class="toggle" [class.active]="isDarkMode" (click)="toggleLightDark.emit()">
+            {{ isDarkMode ? '🌙 Dark' : '☀ Light' }}
+          </button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

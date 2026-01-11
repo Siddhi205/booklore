@@ -11,154 +11,50 @@
   <div id="foliate-container"></div>
 
   @if (showChapters) {
-    <div class="dialog-overlay" (click)="showChapters = false">
-      <div class="sidebar" (click)="$event.stopPropagation()">
-        <div class="sidebar-header">
-          <h2>Chapters</h2>
-          <button class="close-btn" (click)="showChapters = false">✕</button>
-        </div>
-        <!-- Book info section -->
-        @if (bookCoverUrl || bookTitle) {
-          <div class="sidebar-book-info">
-            @if (bookCoverUrl) {
-              <img
-                [src]="bookCoverUrl"
-                alt="Book cover"
-                class="sidebar-book-cover"
-              />
-            }
-            <div class="sidebar-book-meta">
-              <div class="sidebar-book-title">{{ bookTitle }}</div>
-              @if (bookAuthors) {
-                <div class="sidebar-book-authors">{{ bookAuthors }}</div>
-              }
-            </div>
-          </div>
-        }
-        <div class="sidebar-body">
-          <ul>
-            @for (chapter of chapters; track chapter.href) {
-              <li (click)="onChapterClick(chapter.href)">{{ chapter.label }}</li>
-            }
-          </ul>
-        </div>
-      </div>
-    </div>
+    <app-chapters-dialog
+      [bookCoverUrl]="bookCoverUrl"
+      [bookTitle]="bookTitle"
+      [bookAuthors]="bookAuthors"
+      [chapters]="chapters"
+      (close)="showChapters = false"
+      (chapterClick)="onChapterClick($event)"
+    ></app-chapters-dialog>
   }
 
   @if (showControls) {
-    <div class="dialog-overlay" (click)="showControls = false">
-      <div class="dialog" (click)="$event.stopPropagation()">
-        <div class="dialog-header">
-          <h2>Reader Settings</h2>
-          <button class="close-btn" (click)="showControls = false">✕</button>
-        </div>
-
-        <div class="dialog-body">
-          <section>
-            <h3>Navigation</h3>
-            <div class="nav-buttons">
-              <button (click)="prevPage()">← Previous</button>
-              <button (click)="nextPage()">Next →</button>
-            </div>
-          </section>
-
-          <section>
-            <h3>Typography</h3>
-            <div class="control">
-              <label>Font Family</label>
-              <select [value]="fontFamily" (change)="onFontFamilyChange($event)">
-                @for (font of fonts; track font.value) {
-                  <option [value]="font.value">{{ font.name }}</option>
-                }
-              </select>
-            </div>
-            <div class="control">
-              <label>Font Size</label>
-              <div class="stepper">
-                <button (click)="decreaseFontSize()">−</button>
-                <span>{{ fontSize }}px</span>
-                <button (click)="increaseFontSize()">+</button>
-              </div>
-            </div>
-            <div class="control">
-              <label>Line Height</label>
-              <div class="stepper">
-                <button (click)="decreaseLineHeight()">−</button>
-                <span>{{ lineHeight.toFixed(1) }}</span>
-                <button (click)="increaseLineHeight()">+</button>
-              </div>
-            </div>
-            <div class="control">
-              <label>Columns</label>
-              <div class="stepper">
-                <button (click)="decreaseMaxColumnCount()">−</button>
-                <span>{{ maxColumnCount }}</span>
-                <button (click)="increaseMaxColumnCount()">+</button>
-              </div>
-            </div>
-            <div class="control">
-              <label>Max Width</label>
-              <div class="stepper">
-                <button (click)="decreaseMaxInlineSize()">−</button>
-                <span>{{ maxInlineSize }}px</span>
-                <button (click)="increaseMaxInlineSize()">+</button>
-              </div>
-            </div>
-            <div class="control">
-              <label>Max Height</label>
-              <div class="stepper">
-                <button (click)="decreaseMaxBlockSize()">−</button>
-                <span>{{ maxBlockSize }}px</span>
-                <button (click)="increaseMaxBlockSize()">+</button>
-              </div>
-            </div>
-            <div class="control">
-              <label>Gap</label>
-              <input
-                #gapInput
-                type="range"
-                min="0"
-                max="0.5"
-                step="0.01"
-                [value]="gap"
-                (input)="setGap(gapInput.valueAsNumber)"
-              />
-              <span class="value">{{ (gap * 100) | number : '1.0-0' }}%</span>
-            </div>
-            <div class="control">
-              <label>Justify Text</label>
-              <button class="toggle" [class.active]="justify" (click)="toggleJustify()">
-                {{ justify ? 'On' : 'Off' }}
-              </button>
-            </div>
-            <div class="control">
-              <label>Hyphenate</label>
-              <button class="toggle" [class.active]="hyphenate" (click)="toggleHyphenate()">
-                {{ hyphenate ? 'On' : 'Off' }}
-              </button>
-            </div>
-          </section>
-
-          <section>
-            <h3>Appearance</h3>
-            <div class="control">
-              <label>Theme</label>
-              <select [value]="currentTheme.name" (change)="onThemeChange($event)">
-                @for (theme of themes; track theme.name) {
-                  <option [value]="theme.name">{{ theme.label }}</option>
-                }
-              </select>
-            </div>
-            <div class="control">
-              <label>Mode</label>
-              <button class="toggle" [class.active]="isDarkMode" (click)="toggleLightDark()">
-                {{ isDarkMode ? '🌙 Dark' : '☀ Light' }}
-              </button>
-            </div>
-          </section>
-        </div>
-      </div>
-    </div>
+    <app-settings-dialog
+      [themes]="themes"
+      [fonts]="fonts"
+      [isDarkMode]="isDarkMode"
+      [fontFamily]="fontFamily"
+      [fontSize]="fontSize"
+      [lineHeight]="lineHeight"
+      [maxColumnCount]="maxColumnCount"
+      [gap]="gap"
+      [justify]="justify"
+      [hyphenate]="hyphenate"
+      [currentTheme]="currentTheme"
+      [maxInlineSize]="maxInlineSize"
+      [maxBlockSize]="maxBlockSize"
+      (close)="showControls = false"
+      (prevPage)="prevPage()"
+      (nextPage)="nextPage()"
+      (onFontFamilyChange)="onFontFamilyChange($event)"
+      (increaseFontSize)="increaseFontSize()"
+      (decreaseFontSize)="decreaseFontSize()"
+      (increaseLineHeight)="increaseLineHeight()"
+      (decreaseLineHeight)="decreaseLineHeight()"
+      (increaseMaxColumnCount)="increaseMaxColumnCount()"
+      (decreaseMaxColumnCount)="decreaseMaxColumnCount()"
+      (setGap)="setGap($event)"
+      (toggleJustify)="toggleJustify()"
+      (toggleHyphenate)="toggleHyphenate()"
+      (toggleLightDark)="toggleLightDark()"
+      (onThemeChange)="onThemeChange($event)"
+      (increaseMaxInlineSize)="increaseMaxInlineSize()"
+      (decreaseMaxInlineSize)="decreaseMaxInlineSize()"
+      (increaseMaxBlockSize)="increaseMaxBlockSize()"
+      (decreaseMaxBlockSize)="decreaseMaxBlockSize()"
+    ></app-settings-dialog>
   }
 </div>

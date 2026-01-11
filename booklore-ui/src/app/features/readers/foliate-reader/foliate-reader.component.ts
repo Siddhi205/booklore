@@ -6,12 +6,19 @@ import {FoliateViewManagerService} from './services/foliate-view-manager.service
 import {ReaderStateService} from './services/reader-state.service';
 import {ReaderStyleService} from './services/reader-style.service';
 import {Theme, themes} from './services/reader-themes';
-import { ReaderHeaderComponent } from './reader-header.component';
+import {ReaderHeaderComponent} from './reader-header.component';
+import {SettingsDialogComponent} from './settings-dialog.component';
+import {ChaptersDialogComponent} from './chapters-dialog.component';
 
 @Component({
   selector: 'app-foliate-reader',
   standalone: true,
-  imports: [CommonModule, ReaderHeaderComponent],
+  imports: [
+    CommonModule,
+    ReaderHeaderComponent,
+    SettingsDialogComponent,
+    ChaptersDialogComponent
+  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [
     FoliateLoaderService,

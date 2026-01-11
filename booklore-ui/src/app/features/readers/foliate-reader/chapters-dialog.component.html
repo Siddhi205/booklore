@@ -1,0 +1,33 @@
+<div class="dialog-overlay" (click)="close.emit()">
+  <div class="sidebar" (click)="$event.stopPropagation()">
+    <div class="sidebar-header">
+      <h2>Chapters</h2>
+      <button class="close-btn" (click)="close.emit()">✕</button>
+    </div>
+    @if (bookCoverUrl || bookTitle) {
+      <div class="sidebar-book-info">
+        @if (bookCoverUrl) {
+          <img
+            [src]="bookCoverUrl"
+            alt="Book cover"
+            class="sidebar-book-cover"
+          />
+        }
+        <div class="sidebar-book-meta">
+          <div class="sidebar-book-title">{{ bookTitle }}</div>
+          @if (bookAuthors) {
+            <div class="sidebar-book-authors">{{ bookAuthors }}</div>
+          }
+        </div>
+      </div>
+    }
+    <div class="sidebar-body">
+      <ul>
+        @for (chapter of chapters; track chapter.href) {
+          <li (click)="onChapterClick(chapter.href)">{{ chapter.label }}</li>
+        }
+      </ul>
+    </div>
+  </div>
+</div>
+

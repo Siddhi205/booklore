@@ -4,8 +4,7 @@
   [style.background]="currentTheme?.bg ?? ''"
   [class.visible]="headerVisible"
   (mouseenter)="onHeaderMouseEnter()"
-  (mouseleave)="onHeaderMouseLeave()"
->
+  (mouseleave)="onHeaderMouseLeave()">
   <button class="icon-btn" (click)="showChapters.emit()" title="Chapters">
     <span aria-label="Chapters" class="icon-chapters">☰</span>
   </button>
