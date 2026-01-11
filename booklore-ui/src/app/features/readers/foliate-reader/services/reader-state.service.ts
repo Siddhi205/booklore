@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
+import {Theme, themes} from './reader-themes';
 
 export interface ReaderState {
   lineHeight: number;
@@ -8,6 +9,7 @@ export interface ReaderState {
   maxColumnCount: number;
   gap: number;
   fontSize: number; // in pixels
+  theme: Theme;
 }
 
 @Injectable({
@@ -20,7 +22,8 @@ export class ReaderStateService {
     hyphenate: true,
     maxColumnCount: 2,
     gap: 0.05,
-    fontSize: 16 // default font size
+    fontSize: 16, // default font size
+    theme: themes[0],
   };
 
   private stateSubject = new BehaviorSubject<ReaderState>(this.initialState);
@@ -63,6 +66,10 @@ export class ReaderStateService {
   updateFontSize(delta: number): void {
     const newFontSize = Math.max(10, Math.min(32, this.currentState.fontSize + delta));
     this.updateState({fontSize: newFontSize});
+  }
+
+  setTheme(theme: Theme): void {
+    this.updateState({theme});
   }
 
   private updateState(partial: Partial<ReaderState>): void {

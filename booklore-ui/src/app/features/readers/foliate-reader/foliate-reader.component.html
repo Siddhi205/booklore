@@ -1,4 +1,4 @@
-<div class="reader">
+<div class="reader" [style.background-color]="currentTheme.bg">
   @if (debugInfo) {
     <div class="debug-info">
       <h3>Debug Info:</h3>
@@ -39,8 +39,20 @@
       />
     </div>
     <div class="justify-controls">
-      <button (click)="setJustify(true)" [disabled]="justify">Justify</button>
-      <button (click)="setJustify(false)" [disabled]="!justify">No Justify</button>
+      <button (click)="toggleJustify()">
+        {{ justify ? 'No Justify' : 'Justify' }}
+      </button>
+    </div>
+    <div class="theme-controls">
+      <label for="theme-select">Theme:</label>
+      <select id="theme-select" [value]="currentTheme.name" (change)="onThemeChange($event)">
+        @for (theme of themes; track theme.name) {
+          <option [value]="theme.name">{{ theme.label }}</option>
+        }
+      </select>
+      <button (click)="toggleLightDark()">
+        {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
+      </button>
     </div>
   </div>
 </div>

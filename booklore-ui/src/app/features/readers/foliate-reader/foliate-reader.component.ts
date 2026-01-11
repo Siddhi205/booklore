@@ -5,6 +5,7 @@ import {FoliateLoaderService} from './services/foliate-loader.service';
 import {FoliateViewManagerService} from './services/foliate-view-manager.service';
 import {ReaderStateService} from './services/reader-state.service';
 import {ReaderStyleService} from './services/reader-style.service';
+import {Theme, themes} from './services/reader-themes';
 
 @Component({
   selector: 'app-foliate-reader',
@@ -24,6 +25,9 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   debugInfo = '';
+  themes = themes;
+
+  isDarkMode = false; // UI state for toggle
 
   get lineHeight() {
     return this.stateService.currentState.lineHeight;
@@ -43,6 +47,21 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
 
   get fontSize() {
     return this.stateService.currentState.fontSize;
+  }
+
+  get currentTheme() {
+    return this.stateService.currentState.theme;
+  }
+
+  get isThemeDark() {
+    // Detect if current theme is dark by comparing fg/bg to dark variant
+    const theme = this.currentTheme;
+    return (
+      theme &&
+      theme.dark &&
+      theme.fg === theme.dark.fg &&
+      theme.bg === theme.dark.bg
+    );
   }
 
   constructor(
@@ -164,6 +183,28 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     this.stateService.updateGap(delta);
   }
 
+  toggleJustify() {
+    this.stateService.toggleJustify();
+  }
+
+  toggleLightDark() {
+    // Toggle between light and dark variants of the current theme
+    const currentTheme = this.stateService.currentState.theme;
+    const isCurrentlyDark = this.isThemeDark;
+
+    const newTheme: Theme = {
+      ...currentTheme,
+      fg: isCurrentlyDark ? currentTheme.light.fg : currentTheme.dark.fg,
+      bg: isCurrentlyDark ? currentTheme.light.bg : currentTheme.dark.bg,
+      link: isCurrentlyDark ? currentTheme.light.link : currentTheme.dark.link,
+    };
+
+    // Set the theme with the toggled variant
+    this.stateService.setTheme(newTheme);
+
+    this.isDarkMode = !isCurrentlyDark;
+  }
+
   setJustify(justify: boolean) {
     this.stateService.setJustify(justify);
   }
@@ -176,9 +217,33 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     this.stateService.updateFontSize(-1);
   }
 
+  onThemeChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    if (target?.value) {
+      this.setTheme(target.value);
+    }
+  }
+
+  setTheme(themeName: string) {
+    const theme = this.themes.find(t => t.name === themeName);
+    if (theme) {
+      // When selecting a new theme, initialize it with its light mode colors.
+      const newTheme: Theme = {
+        ...theme,
+        fg: theme.light.fg,
+        bg: theme.light.bg,
+        link: theme.light.link,
+      };
+      this.stateService.setTheme(newTheme);
+      this.isDarkMode = this.isThemeDark;
+    }
+  }
+
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
     this.viewManager.destroy();
   }
+
+  protected readonly HTMLSelectElement = HTMLSelectElement;
 }
