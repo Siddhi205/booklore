@@ -6,6 +6,18 @@ export interface ViewEvent {
   detail?: any;
 }
 
+export interface BookMetadata {
+  title?: string;
+  authors?: string[];
+  language?: string;
+  publisher?: string;
+  description?: string;
+  identifier?: string;
+  coverUrl?: string;
+
+  [key: string]: any;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -56,9 +68,15 @@ export class FoliateViewManagerService {
     this.view?.next();
   }
 
+  async goTo(href: string): Promise<void> {
+    if (this.view) {
+      await this.view.goTo(href);
+    }
+  }
+
   async goToStart(): Promise<void> {
     if (this.view) {
-      await this.view.goTo('epubcfi(/6/20!/4,/114/1:238,/154/2/1:7)');
+      await this.view.goTo(0);
     }
   }
 
@@ -81,14 +99,8 @@ export class FoliateViewManagerService {
     });
   }
 
-  /**
-   * Returns a flat list of chapters from the EPUB table of contents.
-   * Each chapter has a label (name) and href (link to navigate).
-   */
   getChapters(): { label: string; href: string }[] {
     if (!this.view?.book?.toc) return [];
-
-    // Recursive helper to flatten nested TOC items
     const flattenToc = (items: any[], result: any[] = []): any[] => {
       for (const item of items) {
         result.push(item);
@@ -105,5 +117,52 @@ export class FoliateViewManagerService {
       label: item.label,
       href: item.href
     }));
+  }
+
+  /** Returns basic metadata about the loaded book */
+  async getMetadata(): Promise<BookMetadata> {
+    if (!this.view?.book?.metadata) return {};
+    const {metadata} = this.view.book;
+
+    const coverUrl = await this.getCoverUrl();
+
+    return {
+      title: metadata.title,
+      authors: metadata.authors,
+      language: metadata.language,
+      publisher: metadata.publisher,
+      description: metadata.description,
+      identifier: metadata.identifier,
+      coverUrl,
+      ...metadata
+    };
+  }
+
+  /** Returns the book title */
+  getTitle(): string {
+    return this.view?.book?.metadata?.title ?? '';
+  }
+
+  /** Returns the book authors as an array of strings */
+  getAuthors(): string[] {
+    return this.view?.book?.metadata?.authors ?? [];
+  }
+
+  /** Returns the book language */
+  getLanguage(): string {
+    return this.view?.book?.metadata?.language ?? '';
+  }
+
+  /** Returns the cover as a Blob */
+  async getCover(): Promise<Blob | null> {
+    if (!this.view?.book?.getCover) return null;
+    return await this.view.book.getCover();
+  }
+
+  /** Returns a URL that can be used in <img src="..."> for the cover */
+  async getCoverUrl(): Promise<string | null> {
+    const blob = await this.getCover();
+    if (!blob) return null;
+    return URL.createObjectURL(blob);
   }
 }

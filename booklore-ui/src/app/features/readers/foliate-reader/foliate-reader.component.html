@@ -1,13 +1,61 @@
-<div class="reader" [style.background-color]="currentTheme.bg ?? ''">
-  <div class="reader-header" [style.color]="currentTheme.fg ?? ''">
-    @if (currentChapterName) {
-      <span>{{ currentChapterName }}</span>
-    }
+<div
+  class="reader"
+  [style.background-color]="currentTheme.bg ?? ''"
+>
+  <div
+    class="reader-header"
+    [style.color]="currentTheme.fg ?? ''"
+    [style.background]="currentTheme.bg ?? ''"
+    [class.visible]="headerVisible"
+    (mouseenter)="onHeaderMouseEnter()"
+    (mouseleave)="onHeaderMouseLeave()"
+  >
+    <button class="icon-btn" (click)="showChapters = true" title="Chapters">
+      <span aria-label="Chapters" class="icon-chapters">☰</span>
+    </button>
+    <span class="chapter-title" *ngIf="currentChapterName">{{ currentChapterName }}</span>
+    <button class="icon-btn" (click)="showControls = true" title="Settings">
+      <span aria-label="Settings" class="icon-settings">⚙</span>
+    </button>
   </div>
   <div id="foliate-container"></div>
-  <button class="settings-btn" (click)="showControls = true">
-    ⚙ Settings
-  </button>
+
+  @if (showChapters) {
+    <div class="dialog-overlay" (click)="showChapters = false">
+      <div class="sidebar" (click)="$event.stopPropagation()">
+        <div class="sidebar-header">
+          <h2>Chapters</h2>
+          <button class="close-btn" (click)="showChapters = false">✕</button>
+        </div>
+        <!-- Book info section -->
+        @if (bookCoverUrl || bookTitle) {
+          <div class="sidebar-book-info">
+            @if (bookCoverUrl) {
+              <img
+                [src]="bookCoverUrl"
+                alt="Book cover"
+                class="sidebar-book-cover"
+              />
+            }
+            <div class="sidebar-book-meta">
+              <div class="sidebar-book-title">{{ bookTitle }}</div>
+              @if (bookAuthors) {
+                <div class="sidebar-book-authors">{{ bookAuthors }}</div>
+              }
+            </div>
+          </div>
+        }
+        <div class="sidebar-body">
+          <ul>
+            @for (chapter of chapters; track chapter.href) {
+              <li (click)="onChapterClick(chapter.href)">{{ chapter.label }}</li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  }
+
   @if (showControls) {
     <div class="dialog-overlay" (click)="showControls = false">
       <div class="dialog" (click)="$event.stopPropagation()">

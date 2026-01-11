@@ -1,4 +1,4 @@
-import {Component, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, OnInit} from '@angular/core';
+import {Component, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, OnInit, HostListener} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Subject, takeUntil} from 'rxjs';
 import {FoliateLoaderService} from './services/foliate-loader.service';
@@ -23,6 +23,7 @@ import {Theme, themes} from './services/reader-themes';
 })
 export class FoliateReaderComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private hasLoadedOnce = false;
 
   themes = themes;
   fonts = [
@@ -32,11 +33,19 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     {name: 'Cursive', value: 'cursive'},
   ];
 
-  isDarkMode = false; // UI state for toggle
-
-  showControls = false; // Add this property for dialog visibility
+  isDarkMode = false;
+  showControls = false;
+  showChapters = false;
+  chapters: { label: string; href: string }[] = [];
 
   currentChapterName: string | null = null;
+
+  // Add fields for book metadata
+  bookCoverUrl: string | null = null;
+  bookTitle: string = '';
+  bookAuthors: string = '';
+
+  headerVisible = false;
 
   get lineHeight() {
     return this.stateService.currentState.lineHeight;
@@ -79,6 +88,7 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
+    this.headerVisible = false;
     try {
       await this.initializeFoliate();
       await this.setupView();
@@ -107,8 +117,15 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   private async loadBook(): Promise<void> {
     await this.viewManager.loadEpub('/assets/fuck.epub');
     this.applyStyles();
-    // Navigate to the start of the book to show the cover
-    await this.viewManager.goToStart();
+    this.chapters = this.viewManager.getChapters();
+    const metadata = await this.viewManager.getMetadata();
+    this.bookCoverUrl = metadata.coverUrl ?? null;
+    this.bookTitle = metadata.title ?? '';
+    this.bookAuthors = (metadata.authors ?? []).join(', ');
+    if (!this.hasLoadedOnce) {
+      await this.viewManager.goToStart();
+      this.hasLoadedOnce = true;
+    }
   }
 
   private subscribeToStateChanges(): void {
@@ -126,7 +143,8 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
         switch (event.type) {
           case 'load':
             this.applyStyles();
-            this.viewManager.goToStart();
+            this.chapters = this.viewManager.getChapters();
+            // Removed: goToStart() here
             break;
           case 'relocate': {
             const chapterLabel = event?.detail?.tocItem?.label;
@@ -157,6 +175,12 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     this.viewManager.nextPage();
   }
 
+  async onChapterClick(href: string) {
+    console.log('Navigating to chapter:', href);
+    await this.viewManager.goTo(href);
+    this.showChapters = false;
+  }
+
   increaseLineHeight() {
     this.stateService.updateLineHeight(0.1);
   }
@@ -171,14 +195,6 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
 
   decreaseMaxColumnCount() {
     this.stateService.updateMaxColumnCount(-1);
-  }
-
-  increaseGap() {
-    this.stateService.updateGap(0.01);
-  }
-
-  decreaseGap() {
-    this.stateService.updateGap(-0.01);
   }
 
   setGap(value: number) {
@@ -270,7 +286,29 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     this.stateService.updateMaxBlockSize(-60);
   }
 
-  ngOnDestroy() {
+  @HostListener('document:mousemove', ['$event'])
+  onDocumentMouseMove(event: MouseEvent) {
+    // Show header if mouse is within 40px from the top of the viewport
+    if (event.clientY <= 40) {
+      this.headerVisible = true;
+    } else if (!this.isHeaderHovered) {
+      this.headerVisible = false;
+    }
+  }
+
+  isHeaderHovered = false;
+
+  onHeaderMouseEnter() {
+    this.isHeaderHovered = true;
+    this.headerVisible = true;
+  }
+
+  onHeaderMouseLeave() {
+    this.isHeaderHovered = false;
+    this.headerVisible = false;
+  }
+
+  ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
     this.viewManager.destroy();
