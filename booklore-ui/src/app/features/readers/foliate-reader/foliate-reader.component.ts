@@ -15,6 +15,7 @@ import {BookService} from '../../book/service/book.service';
 import {ActivatedRoute} from '@angular/router';
 import {BookMark, BookMarkService} from '../../../shared/service/book-mark.service';
 import {BookPatchService} from '../../book/service/book-patch.service';
+import {ReaderNavbarComponent} from './reader-navbar.component';
 
 @Component({
   selector: 'app-foliate-reader',
@@ -23,7 +24,8 @@ import {BookPatchService} from '../../book/service/book-patch.service';
     CommonModule,
     ReaderHeaderComponent,
     SettingsDialogComponent,
-    EpubReaderLeftSidebarComponent
+    EpubReaderLeftSidebarComponent,
+    ReaderNavbarComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [
@@ -47,6 +49,7 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   chapters: { label: string; href: string }[] = [];
 
   currentChapterName: string | null = null;
+  currentProgressData: any = null;
 
   bookCoverUrl: string | null = null;
   bookTitle: string = '';
@@ -151,6 +154,11 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
             this.chapters = this.viewManager.getChapters();
             break;
           case 'relocate': {
+
+            console.log(event.detail)
+
+            this.currentProgressData = event.detail;
+
             const cfi = event.detail.cfi;
             const href = event.detail.pageItem.href;
             const percentage = event.detail.fraction * 100;
