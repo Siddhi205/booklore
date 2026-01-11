@@ -22,7 +22,9 @@
         @case ('chapters') {
           <ul>
             @for (chapter of chapters; track chapter.href) {
-              <li (click)="onChapterClick(chapter.href)">{{ chapter.label }}</li>
+              <li (click)="onChapterClick(chapter.href)">
+                <span class="chapter-label ellipsis">{{ chapter.label }}</span>
+              </li>
             }
           </ul>
         }

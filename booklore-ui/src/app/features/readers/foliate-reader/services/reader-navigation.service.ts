@@ -7,6 +7,11 @@ export class ReaderNavigationService {
   private touchStartY: number | null = null;
 
   constructor(private viewManager: FoliateViewManagerService) {
+    // Bind handlers to preserve 'this'
+    this.onKeyDown = this.onKeyDown.bind(this);
+    this.onContainerClick = this.onContainerClick.bind(this);
+    this.onTouchStart = this.onTouchStart.bind(this);
+    this.onTouchEnd = this.onTouchEnd.bind(this);
   }
 
   attachListeners(containerId: string = 'foliate-container') {
@@ -98,4 +103,3 @@ export class ReaderNavigationService {
     this.touchStartY = null;
   };
 }
-

@@ -76,7 +76,7 @@
 .sidebar-body {
   flex: 1;
   overflow-y: auto;
-  padding: 4px 0 0 0;
+  padding: 12px 0 12px 0;
 
   ul {
     list-style: none;
@@ -85,7 +85,7 @@
   }
 
   li {
-    padding: 8px 18px 8px 18px;
+    padding: 6px 12px 6px 12px;
     cursor: pointer;
     font-size: 14px;
     border-radius: 8px;
@@ -100,6 +100,19 @@
     }
 
     border-bottom: none;
+
+    .chapter-label {
+      display: block;
+      width: 100%;
+    }
+
+    .ellipsis {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: block;
+      width: 100%;
+    }
   }
 }
 

@@ -60,7 +60,7 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
       await this.loadBook();
       this.subscribeToStateChanges();
       this.subscribeToViewEvents();
-      this.navigationService.attachListeners();
+      this.navigationService.attachListeners('foliate-container'); // Pass container ID
     } catch (err) {
     }
   }
@@ -140,6 +140,6 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
     this.viewManager.destroy();
-    this.navigationService.detachListeners();
+    this.navigationService.detachListeners('foliate-container'); // Pass container ID
   }
 }
