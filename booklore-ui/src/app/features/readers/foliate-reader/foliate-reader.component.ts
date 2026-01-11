@@ -77,6 +77,7 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
       this.subscribeToViewEvents();
       this.navigationService.attachListeners('foliate-container');
     } catch (err) {
+      console.error(err);
     }
   }
 
@@ -90,6 +91,7 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     if (!container) {
       throw new Error('Container not found');
     }
+    container.setAttribute('tabindex', '0');
     this.viewManager.createView(container);
   }
 

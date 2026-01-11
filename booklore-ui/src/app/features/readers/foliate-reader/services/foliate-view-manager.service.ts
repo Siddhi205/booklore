@@ -25,6 +25,7 @@ export class FoliateViewManagerService {
   private view: any;
   private eventSubject = new Subject<ViewEvent>();
   public events$ = this.eventSubject.asObservable();
+  private keydownHandler?: (event: KeyboardEvent) => void;
 
   createView(container: HTMLElement): void {
     this.view = document.createElement('foliate-view');
@@ -34,6 +35,7 @@ export class FoliateViewManagerService {
     container.appendChild(this.view);
 
     this.attachEventListeners();
+    this.attachKeyboardHandler();
   }
 
   async loadEpub(epubPath: string): Promise<void> {
@@ -60,30 +62,49 @@ export class FoliateViewManagerService {
     return this.view?.renderer;
   }
 
-  /** Navigate to a specific location (CFI, href, or index) */
   async goTo(target: string | number): Promise<void> {
     if (!this.view) return;
     await this.view.goTo(target);
   }
 
-  /** Navigate to previous page */
   prev(): void {
     this.view?.prev();
   }
 
-  /** Navigate to next page */
   next(): void {
     this.view?.next();
   }
 
   destroy(): void {
+    if (this.keydownHandler) {
+      document.removeEventListener('keydown', this.keydownHandler);
+      this.keydownHandler = undefined;
+    }
     this.view?.remove();
     this.view = null;
   }
 
+  private attachKeyboardHandler(): void {
+    this.keydownHandler = (event: KeyboardEvent) => {
+      const k = event.key;
+      if (k === 'ArrowLeft' || k === 'h' || k === 'PageUp') {
+        this.prev();
+        event.preventDefault();
+      } else if (k === 'ArrowRight' || k === 'l' || k === 'PageDown') {
+        this.next();
+        event.preventDefault();
+      }
+    };
+
+    document.addEventListener('keydown', this.keydownHandler);
+  }
+
   private attachEventListeners(): void {
-    this.view.addEventListener('load', () => {
-      this.eventSubject.next({type: 'load'});
+    this.view.addEventListener('load', (e: any) => {
+      this.eventSubject.next({type: 'load', detail: e.detail});
+      if (e.detail?.doc && this.keydownHandler) {
+        e.detail.doc.addEventListener('keydown', this.keydownHandler);
+      }
     });
 
     this.view.addEventListener('relocate', (e: any) => {
@@ -115,7 +136,6 @@ export class FoliateViewManagerService {
     }));
   }
 
-  /** Returns basic metadata about the loaded book */
   async getMetadata(): Promise<BookMetadata> {
     if (!this.view?.book?.metadata) return {};
     const {metadata} = this.view.book;
@@ -134,28 +154,11 @@ export class FoliateViewManagerService {
     };
   }
 
-  /** Returns the book title */
-  getTitle(): string {
-    return this.view?.book?.metadata?.title ?? '';
-  }
-
-  /** Returns the book authors as an array of strings */
-  getAuthors(): string[] {
-    return this.view?.book?.metadata?.authors ?? [];
-  }
-
-  /** Returns the book language */
-  getLanguage(): string {
-    return this.view?.book?.metadata?.language ?? '';
-  }
-
-  /** Returns the cover as a Blob */
   async getCover(): Promise<Blob | null> {
     if (!this.view?.book?.getCover) return null;
     return await this.view.book.getCover();
   }
 
-  /** Returns a URL that can be used in <img src="..."> for the cover */
   async getCoverUrl(): Promise<string | null> {
     const blob = await this.getCover();
     if (!blob) return null;
