@@ -33,6 +33,10 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private hasLoadedOnce = false;
 
+  // For touch navigation
+  private touchStartX: number | null = null;
+  private touchStartY: number | null = null;
+
   themes = themes;
   fonts = [
     {name: 'Serif', value: 'serif'},
@@ -100,10 +104,123 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
       await this.loadBook();
       this.subscribeToStateChanges();
       this.subscribeToViewEvents();
+      this.addNavigationListeners();
     } catch (err) {
       // Error handling
     }
   }
+
+  private addNavigationListeners() {
+    // Keyboard navigation
+    document.addEventListener('keydown', this.onKeyDown);
+
+    // Wait a bit for the DOM to be ready
+    setTimeout(() => {
+      const overlay = document.getElementById('navigation-overlay');
+      if (overlay) {
+        // Make overlay not block pointer events by default
+        overlay.style.pointerEvents = 'none';
+
+        // Attach to the container instead for better interaction
+        const container = document.getElementById('foliate-container');
+        if (container) {
+          container.addEventListener('click', this.onContainerClick);
+          container.addEventListener('touchstart', this.onTouchStart, { passive: true });
+          container.addEventListener('touchend', this.onTouchEnd, { passive: false });
+        }
+      }
+    }, 100);
+  }
+
+  private removeNavigationListeners() {
+    document.removeEventListener('keydown', this.onKeyDown);
+
+    const container = document.getElementById('foliate-container');
+    if (container) {
+      container.removeEventListener('click', this.onContainerClick);
+      container.removeEventListener('touchstart', this.onTouchStart);
+      container.removeEventListener('touchend', this.onTouchEnd);
+    }
+  }
+
+  // Arrow key navigation
+  private onKeyDown = (event: KeyboardEvent) => {
+    // Don't trigger if user is typing in an input
+    const target = event.target as HTMLElement;
+    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+      return;
+    }
+
+    if (event.key === 'ArrowLeft' || event.key === 'Left') {
+      this.prevPage();
+      event.preventDefault();
+    } else if (event.key === 'ArrowRight' || event.key === 'Right') {
+      this.nextPage();
+      event.preventDefault();
+    }
+  };
+
+  // Tap/click navigation
+  private onContainerClick = (event: MouseEvent) => {
+    // Check if clicking on actual text or interactive elements
+    const target = event.target as HTMLElement;
+
+    // Don't navigate if clicking on links or if text is selected
+    if (target.tagName === 'A' || window.getSelection()?.toString()) {
+      return;
+    }
+
+    const container = event.currentTarget as HTMLElement;
+    if (!container) return;
+
+    const rect = container.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const width = rect.width;
+
+    if (x < width * 0.4) {
+      this.prevPage();
+    } else if (x > width * 0.6) {
+      this.nextPage();
+    }
+  };
+
+  // Touch navigation
+  private onTouchStart = (event: TouchEvent) => {
+    if (event.touches.length === 1) {
+      this.touchStartX = event.touches[0].clientX;
+      this.touchStartY = event.touches[0].clientY;
+    }
+  };
+
+  private onTouchEnd = (event: TouchEvent) => {
+    if (event.changedTouches.length === 1 && this.touchStartX !== null && this.touchStartY !== null) {
+      const touchEndX = event.changedTouches[0].clientX;
+      const touchEndY = event.changedTouches[0].clientY;
+
+      const deltaX = Math.abs(touchEndX - this.touchStartX);
+      const deltaY = Math.abs(touchEndY - this.touchStartY);
+
+      // Only trigger if it's a tap (minimal movement)
+      if (deltaX < 10 && deltaY < 10) {
+        const container = event.currentTarget as HTMLElement;
+        if (!container) return;
+
+        const rect = container.getBoundingClientRect();
+        const x = touchEndX - rect.left;
+        const width = rect.width;
+
+        if (x < width * 0.4) {
+          this.prevPage();
+          event.preventDefault();
+        } else if (x > width * 0.6) {
+          this.nextPage();
+          event.preventDefault();
+        }
+      }
+    }
+    this.touchStartX = null;
+    this.touchStartY = null;
+  };
 
   private async initializeFoliate(): Promise<void> {
     await this.loaderService.loadFoliateScript();
@@ -173,11 +290,15 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   }
 
   prevPage() {
-    this.viewManager.prevPage();
+    if (this.viewManager) {
+      this.viewManager.prevPage();
+    }
   }
 
   nextPage() {
-    this.viewManager.nextPage();
+    if (this.viewManager) {
+      this.viewManager.nextPage();
+    }
   }
 
   async onChapterClick(href: string) {
@@ -295,5 +416,6 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
     this.viewManager.destroy();
+    this.removeNavigationListeners();
   }
 }

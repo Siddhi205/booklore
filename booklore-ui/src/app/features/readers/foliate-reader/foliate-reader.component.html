@@ -8,7 +8,9 @@
     (showChapters)="showChapters = true"
     (showControls)="showControls = true"
   ></app-reader-header>
-  <div id="foliate-container"></div>
+  <div class="reader-content">
+    <div id="foliate-container"></div>
+  </div>
 
   @if (showChapters) {
     <app-chapters-dialog
