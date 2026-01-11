@@ -114,7 +114,7 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     this.bookTitle = book.metadata!.title ?? '';
     this.bookAuthors = (book.metadata!.authors ?? []).join(', ');
     if (!this.hasLoadedOnce) {
-      await this.viewManager.goToCFI(book.epubProgress!.cfi);
+      await this.navigationService.goToCFI(book.epubProgress!.cfi);
       this.hasLoadedOnce = true;
     }
     this._fileUrl = fileUrl;
