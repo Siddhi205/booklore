@@ -393,9 +393,9 @@ export class BookService {
     return this.bookPatchService.savePdfProgress(bookId, page, percentage);
   }
 
-  saveEpubProgress(bookId: number, cfi: string, percentage: number): Observable<void> {
-    return this.bookPatchService.saveEpubProgress(bookId, cfi, percentage);
-  }
+  /*saveEpubProgress(bookId: number, cfi: string, href: string, percentage: number): Observable<void> {
+    return this.bookPatchService.saveEpubProgress(bookId, cfi, href, percentage);
+  }*/
 
   saveCbxProgress(bookId: number, page: number, percentage: number): Observable<void> {
     return this.bookPatchService.saveCbxProgress(bookId, page, percentage);

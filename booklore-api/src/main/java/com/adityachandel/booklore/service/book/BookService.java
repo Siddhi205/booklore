@@ -72,6 +72,7 @@ public class BookService {
             case EPUB -> {
                 book.setEpubProgress(EpubProgress.builder()
                         .cfi(progress.getEpubProgress())
+                        .href(progress.getEpubProgressHref())
                         .percentage(progress.getEpubProgressPercent())
                         .build());
                 book.setKoreaderProgress(KoProgress.builder()
@@ -169,6 +170,7 @@ public class BookService {
         if (bookEntity.getBookType() == BookFileType.EPUB) {
             book.setEpubProgress(EpubProgress.builder()
                     .cfi(userProgress.getEpubProgress())
+                    .href(userProgress.getEpubProgressHref())
                     .percentage(userProgress.getEpubProgressPercent())
                     .build());
             if (userProgress.getKoreaderProgressPercent() != null) {

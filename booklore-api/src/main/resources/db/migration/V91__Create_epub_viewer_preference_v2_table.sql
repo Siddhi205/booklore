@@ -19,3 +19,6 @@ CREATE TABLE IF NOT EXISTS epub_viewer_preference_v2
     CONSTRAINT fk_epub_viewer_preference_v2_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT fk_epub_viewer_preference_v2_book FOREIGN KEY (book_id) REFERENCES book (id) ON DELETE CASCADE
 );
+
+ALTER TABLE user_book_progress
+    ADD COLUMN IF NOT EXISTS epub_progress_href VARCHAR(1000);

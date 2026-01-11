@@ -7,20 +7,23 @@
     [currentTheme]="stateService.currentState.theme"
     (showChapters)="showChapters = true"
     (showControls)="showControls = true"
+    (createBookmark)="onCreateBookmark()"
   ></app-reader-header>
   <div class="reader-content">
     <div id="foliate-container"></div>
   </div>
 
   @if (showChapters) {
-    <app-chapters-dialog
+    <epub-reader-left-sidebar
       [bookCoverUrl]="bookCoverUrl"
       [bookTitle]="bookTitle"
       [bookAuthors]="bookAuthors"
       [chapters]="chapters"
+      [bookmarks]="bookmarks"
       (close)="showChapters = false"
       (chapterClick)="onChapterClick($event)"
-    ></app-chapters-dialog>
+      (deleteBookmark)="onDeleteBookmark($event)"
+    ></epub-reader-left-sidebar>
   }
 
   @if (showControls) {

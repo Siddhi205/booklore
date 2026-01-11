@@ -7,11 +7,14 @@ import {FoliateViewManagerService} from './services/foliate-view-manager.service
 import {ReaderStateService} from './services/reader-state.service';
 import {ReaderStyleService} from './services/reader-style.service';
 import {ReaderNavigationService} from './services/reader-navigation.service';
+import {ReaderBookmarkService} from './services/reader-bookmark.service';
 import {ReaderHeaderComponent} from './reader-header.component';
 import {SettingsDialogComponent} from './settings-dialog.component';
-import {ChaptersDialogComponent} from './chapters-dialog.component';
+import {EpubReaderLeftSidebarComponent} from './epub-reader-left-sidebar.component';
 import {BookService} from '../../book/service/book.service';
 import {ActivatedRoute} from '@angular/router';
+import {BookMark, BookMarkService} from '../../../shared/service/book-mark.service';
+import {BookPatchService} from '../../book/service/book-patch.service';
 
 @Component({
   selector: 'app-foliate-reader',
@@ -20,7 +23,7 @@ import {ActivatedRoute} from '@angular/router';
     CommonModule,
     ReaderHeaderComponent,
     SettingsDialogComponent,
-    ChaptersDialogComponent
+    EpubReaderLeftSidebarComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [
@@ -28,7 +31,8 @@ import {ActivatedRoute} from '@angular/router';
     FoliateViewManagerService,
     ReaderStateService,
     ReaderStyleService,
-    ReaderNavigationService
+    ReaderNavigationService,
+    ReaderBookmarkService
   ],
   templateUrl: './foliate-reader.component.html',
   styleUrls: ['./foliate-reader.component.scss']
@@ -47,6 +51,7 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   bookCoverUrl: string | null = null;
   bookTitle: string = '';
   bookAuthors: string = '';
+  bookmarks: BookMark[] = [];
 
   constructor(
     private loaderService: FoliateLoaderService,
@@ -55,7 +60,10 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     private styleService: ReaderStyleService,
     private navigationService: ReaderNavigationService,
     private bookService: BookService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private bookmarkService: ReaderBookmarkService,
+    private bookMarkService: BookMarkService,
+    private bookPatchService: BookPatchService
   ) {
   }
 
@@ -64,6 +72,7 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
       await this.initializeFoliate();
       await this.setupView();
       await this.loadBookFromAPI();
+      this.loadBookmarks();
       this.subscribeToStateChanges();
       this.subscribeToViewEvents();
       this.navigationService.attachListeners('foliate-container');
@@ -85,9 +94,7 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   }
 
   private async loadBookFromAPI(): Promise<void> {
-    this.bookId = +this.route.snapshot.paramMap.get('bookId')!; // Store bookId
-
-    // Initialize state with user and book settings, then load book
+    this.bookId = +this.route.snapshot.paramMap.get('bookId')!;
     const [_, book, fileBlob] = await firstValueFrom(
       this.stateService.initializeState(this.bookId).pipe(
         switchMap(() => forkJoin([
@@ -116,6 +123,14 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
 
   private _fileUrl: string | null = null;
 
+  private loadBookmarks(): void {
+    this.bookMarkService.getBookmarksForBook(this.bookId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(bookmarks => {
+        this.bookmarks = bookmarks;
+      });
+  }
+
   private subscribeToStateChanges(): void {
     this.stateService.state$
       .pipe(takeUntil(this.destroy$))
@@ -134,9 +149,23 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
             this.chapters = this.viewManager.getChapters();
             break;
           case 'relocate': {
+            const cfi = event.detail.cfi;
+            const href = event.detail.pageItem.href;
+            const percentage = event.detail.fraction * 100;
+
+            if (cfi && href) {
+              this.bookPatchService.saveEpubProgress(this.bookId, cfi, href, percentage);
+            }
+
             const chapterLabel = event?.detail?.tocItem?.label;
             if (chapterLabel && chapterLabel !== this.currentChapterName) {
               this.currentChapterName = chapterLabel;
+            }
+            if (event?.detail?.cfi) {
+              this.bookmarkService.updateCurrentPosition(
+                event.detail.cfi,
+                chapterLabel
+              );
             }
             break;
           }
@@ -159,11 +188,39 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     this.showChapters = false;
   }
 
+  onCreateBookmark() {
+    this.bookmarkService.createBookmarkAtCurrentPosition(this.bookId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(success => {
+        if (success) {
+          this.loadBookmarks();
+          // TODO: Show success message to user
+        } else {
+          // TODO: Show error message to user
+        }
+      });
+  }
+
+  onDeleteBookmark(bookmarkId: number) {
+    this.bookMarkService.deleteBookmark(bookmarkId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.loadBookmarks();
+          // TODO: Show success message to user
+        },
+        error: () => {
+          // TODO: Show error message to user
+        }
+      });
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
     this.viewManager.destroy();
-    this.navigationService.detachListeners('foliate-container'); // Pass container ID
+    this.navigationService.detachListeners('foliate-container');
+    this.bookmarkService.reset();
     if (this._fileUrl) {
       URL.revokeObjectURL(this._fileUrl);
       this._fileUrl = null;

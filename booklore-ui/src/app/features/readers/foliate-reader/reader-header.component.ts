@@ -11,6 +11,7 @@ export class ReaderHeaderComponent {
   @Input() currentTheme: any;
   @Output() showChapters = new EventEmitter<void>();
   @Output() showControls = new EventEmitter<void>();
+  @Output() createBookmark = new EventEmitter<void>();
 
   headerVisible = false;
   private isHeaderHovered = false;

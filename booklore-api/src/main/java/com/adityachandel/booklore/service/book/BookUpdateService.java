@@ -167,6 +167,7 @@ public class BookUpdateService {
             case EPUB -> {
                 if (request.getEpubProgress() != null) {
                     progress.setEpubProgress(request.getEpubProgress().getCfi());
+                    progress.setEpubProgressHref(request.getEpubProgress().getHref());
                     percentage = request.getEpubProgress().getPercentage();
                 }
             }
@@ -426,6 +427,7 @@ public class BookUpdateService {
             case EPUB -> {
                 book.setEpubProgress(com.adityachandel.booklore.model.dto.progress.EpubProgress.builder()
                         .cfi(progress.getEpubProgress())
+                        .href(progress.getEpubProgressHref())
                         .percentage(progress.getEpubProgressPercent())
                         .build());
                 book.setKoreaderProgress(com.adityachandel.booklore.model.dto.progress.KoProgress.builder()
