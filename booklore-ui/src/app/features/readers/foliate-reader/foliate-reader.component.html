@@ -14,6 +14,25 @@
       <span>{{ lineHeight.toFixed(1) }}</span>
       <button (click)="increaseLineHeight()">Line Height +</button>
     </div>
+    <div class="column-count-controls">
+      <button (click)="decreaseMaxColumnCount()">Columns -</button>
+      <span>{{ maxColumnCount }}</span>
+      <button (click)="increaseMaxColumnCount()">Columns +</button>
+    </div>
+    <div class="gap-controls">
+      <button (click)="decreaseGap()">Gap -</button>
+      <span>{{ (gap * 100) | number : '1.0-0' }}%</span>
+      <button (click)="increaseGap()">Gap +</button>
+      <input
+        type="range"
+        min="0"
+        max="0.5"
+        step="0.01"
+        [value]="gap"
+        (input)="setGap($event.target.valueAsNumber)"
+        style="width: 80px; vertical-align: middle;"
+      />
+    </div>
     <div class="justify-controls">
       <button (click)="setJustify(true)" [disabled]="justify">Justify</button>
       <button (click)="setJustify(false)" [disabled]="!justify">No Justify</button>

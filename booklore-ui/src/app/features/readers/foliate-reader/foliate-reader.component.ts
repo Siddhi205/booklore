@@ -16,6 +16,8 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   lineHeight = 1.5;
   justify = false;
   hyphenate = true;
+  maxColumnCount = 2; // Add maxColumnCount property
+  gap = 0.05; // Default gap value
 
   async ngOnInit() {
     try {
@@ -87,6 +89,29 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     this.applyStyles();
   }
 
+  increaseMaxColumnCount() {
+    this.maxColumnCount = Math.min(this.maxColumnCount + 1, 10);
+    this.applyStyles();
+  }
+
+  decreaseMaxColumnCount() {
+    this.maxColumnCount = Math.max(this.maxColumnCount - 1, 1);
+    this.applyStyles();
+  }
+
+  setGap(value: number) {
+    this.gap = Math.max(0, Math.min(0.5, value));
+    this.applyStyles();
+  }
+
+  increaseGap() {
+    this.setGap(this.gap + 0.01);
+  }
+
+  decreaseGap() {
+    this.setGap(this.gap - 0.01);
+  }
+
   toggleJustify() {
     this.justify = !this.justify;
     this.applyStyles();
@@ -106,6 +131,10 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
       justify: this.justify,
       hyphenate: this.hyphenate
     });
+
+    // Set max-column-count and gap attributes on renderer
+    this.view.renderer.setAttribute('max-column-count', this.maxColumnCount);
+    this.view.renderer.setAttribute('gap', (this.gap * 100) + '%'); // Set gap attribute
 
     if (typeof this.view.renderer.setStyles === 'function') {
       this.view.renderer.setStyles(css);
