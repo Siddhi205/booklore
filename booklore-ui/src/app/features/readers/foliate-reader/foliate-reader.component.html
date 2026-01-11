@@ -1,0 +1,22 @@
+<div class="reader">
+  @if (debugInfo) {
+    <div class="debug-info">
+      <h3>Debug Info:</h3>
+      <pre>{{ debugInfo }}</pre>
+    </div>
+  }
+  <div id="foliate-container"></div>
+  <div class="navigation">
+    <button (click)="prevPage()">‹ Prev</button>
+    <button (click)="nextPage()">Next ›</button>
+    <div class="line-height-controls">
+      <button (click)="decreaseLineHeight()">Line Height -</button>
+      <span>{{ lineHeight.toFixed(1) }}</span>
+      <button (click)="increaseLineHeight()">Line Height +</button>
+    </div>
+    <div class="justify-controls">
+      <button (click)="setJustify(true)" [disabled]="justify">Justify</button>
+      <button (click)="setJustify(false)" [disabled]="!justify">No Justify</button>
+    </div>
+  </div>
+</div>

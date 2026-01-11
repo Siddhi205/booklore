@@ -25,6 +25,7 @@ import {BookdropGuard} from './core/security/guards/bookdrop.guard';
 import {LibraryStatsGuard} from './core/security/guards/library-stats.guard';
 import {UserStatsGuard} from './core/security/guards/user-stats.guard';
 import {EditMetadataGuard} from './core/security/guards/edit-metdata.guard';
+import {FoliateReaderComponent} from './features/readers/foliate-reader/foliate-reader.component';
 
 export const routes: Routes = [
   {
@@ -69,6 +70,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'foliate-reader/book/:bookId',
+    component: FoliateReaderComponent,
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'cbx-reader/book/:bookId',
     component: CbxReaderComponent,
     canActivate: [AuthGuard]
@@ -81,6 +87,10 @@ export const routes: Routes = [
   {
     path: 'change-password',
     component: ChangePasswordComponent
+  },
+  {
+    path: 'reader/foliate',
+    component: FoliateReaderComponent
   },
   {
     path: '**',
