@@ -60,23 +60,20 @@ export class FoliateViewManagerService {
     return this.view?.renderer;
   }
 
-  prevPage(): void {
+  /** Navigate to a specific location (CFI, href, or index) */
+  async goTo(target: string | number): Promise<void> {
+    if (!this.view) return;
+    await this.view.goTo(target);
+  }
+
+  /** Navigate to previous page */
+  prev(): void {
     this.view?.prev();
   }
 
-  nextPage(): void {
+  /** Navigate to next page */
+  next(): void {
     this.view?.next();
-  }
-
-  async goTo(href: string): Promise<void> {
-    if (this.view) {
-      await this.view.goTo(href);
-    }
-  }
-
-  async goToCFI(cfi?: string): Promise<void> {
-    if (!this.view) return;
-    await this.view.goTo(cfi && cfi.trim().length > 0 ? cfi : 0);
   }
 
   destroy(): void {

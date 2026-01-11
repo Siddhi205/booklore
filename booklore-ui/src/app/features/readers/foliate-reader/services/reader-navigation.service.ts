@@ -38,6 +38,23 @@ export class ReaderNavigationService {
     }
   }
 
+  async goToCFI(cfi?: string): Promise<void> {
+    const target = cfi && cfi.trim().length > 0 ? cfi : 0;
+    await this.viewManager.goTo(target);
+  }
+
+  async goToHref(href: string): Promise<void> {
+    await this.viewManager.goTo(href);
+  }
+
+  prevPage(): void {
+    this.viewManager.prev();
+  }
+
+  nextPage(): void {
+    this.viewManager.next();
+  }
+
   private onKeyDown = (event: KeyboardEvent) => {
     const target = event.target as HTMLElement;
     if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
@@ -45,10 +62,10 @@ export class ReaderNavigationService {
     }
 
     if (event.key === 'ArrowLeft' || event.key === 'Left') {
-      this.viewManager.prevPage();
+      this.prevPage();
       event.preventDefault();
     } else if (event.key === 'ArrowRight' || event.key === 'Right') {
-      this.viewManager.nextPage();
+      this.nextPage();
       event.preventDefault();
     }
   };
@@ -68,9 +85,9 @@ export class ReaderNavigationService {
     const width = rect.width;
 
     if (x < width * 0.4) {
-      this.viewManager.prevPage();
+      this.prevPage();
     } else if (x > width * 0.6) {
-      this.viewManager.nextPage();
+      this.nextPage();
     }
   };
 
@@ -91,10 +108,10 @@ export class ReaderNavigationService {
 
       if (Math.abs(deltaX) > 50 && deltaY < 50) {
         if (deltaX > 0) {
-          this.viewManager.prevPage();
+          this.prevPage();
           event.preventDefault();
         } else {
-          this.viewManager.nextPage();
+          this.nextPage();
           event.preventDefault();
         }
       }
