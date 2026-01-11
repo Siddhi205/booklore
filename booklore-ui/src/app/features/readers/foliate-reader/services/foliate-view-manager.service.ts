@@ -74,10 +74,9 @@ export class FoliateViewManagerService {
     }
   }
 
-  async goToStart(): Promise<void> {
-    if (this.view) {
-      await this.view.goTo(0);
-    }
+  async goToCFI(cfi?: string): Promise<void> {
+    if (!this.view) return;
+    await this.view.goTo(cfi && cfi.trim().length > 0 ? cfi : 0);
   }
 
   destroy(): void {
