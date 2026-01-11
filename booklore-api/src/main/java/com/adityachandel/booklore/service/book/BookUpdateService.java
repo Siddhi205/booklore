@@ -34,7 +34,6 @@ public class BookUpdateService {
 
     private final BookRepository bookRepository;
     private final PdfViewerPreferencesRepository pdfViewerPreferencesRepository;
-    private final EpubViewerPreferencesRepository epubViewerPreferencesRepository;
     private final CbxViewerPreferencesRepository cbxViewerPreferencesRepository;
     private final NewPdfViewerPreferencesRepository newPdfViewerPreferencesRepository;
     private final ShelfRepository shelfRepository;
@@ -45,6 +44,7 @@ public class BookUpdateService {
     private final BookQueryService bookQueryService;
     private final UserProgressService userProgressService;
     private final KoboReadingStateService koboReadingStateService;
+    private final EpubViewerPreferenceV2Repository epubViewerPreferenceV2Repository;
 
     public void updateBookViewerSetting(long bookId, BookViewerSettings bookViewerSettings) {
         BookEntity bookEntity = bookRepository.findById(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
@@ -81,25 +81,45 @@ public class BookUpdateService {
                 newPdfViewerPreferencesRepository.save(pdfPrefs);
             }
         } else if (bookEntity.getBookType() == BookFileType.EPUB) {
-            EpubViewerPreferencesEntity epubPrefs = epubViewerPreferencesRepository
+            EpubViewerPreferenceV2Entity epubPrefs = epubViewerPreferenceV2Repository
                     .findByBookIdAndUserId(bookId, user.getId())
                     .orElseGet(() -> {
-                        EpubViewerPreferencesEntity newPrefs = EpubViewerPreferencesEntity.builder()
+                        EpubViewerPreferencesV2 epubSettings = bookViewerSettings.getEpubSettingsV2();
+                        EpubViewerPreferenceV2Entity newPrefs = EpubViewerPreferenceV2Entity.builder()
                                 .bookId(bookId)
                                 .userId(user.getId())
+                                .fontFamily(epubSettings != null && epubSettings.getFontFamily() != null ? epubSettings.getFontFamily() : "serif")
+                                .fontSize(epubSettings != null && epubSettings.getFontSize() != null ? epubSettings.getFontSize() : 16)
+                                .gap(epubSettings != null && epubSettings.getGap() != null ? epubSettings.getGap() : 0.05f)
+                                .hyphenate(epubSettings != null && epubSettings.getHyphenate() != null ? epubSettings.getHyphenate() : true)
+                                .isDark(epubSettings != null && epubSettings.getIsDark() != null ? epubSettings.getIsDark() : true)
+                                .justify(epubSettings != null && epubSettings.getJustify() != null ? epubSettings.getJustify() : true)
+                                .lineHeight(epubSettings != null && epubSettings.getLineHeight() != null ? epubSettings.getLineHeight() : 1.5f)
+                                .maxBlockSize(epubSettings != null && epubSettings.getMaxBlockSize() != null ? epubSettings.getMaxBlockSize() : 1440)
+                                .maxColumnCount(epubSettings != null && epubSettings.getMaxColumnCount() != null ? epubSettings.getMaxColumnCount() : 2)
+                                .maxInlineSize(epubSettings != null && epubSettings.getMaxInlineSize() != null ? epubSettings.getMaxInlineSize() : 1080)
+                                .theme(epubSettings != null && epubSettings.getTheme() != null ? epubSettings.getTheme() : "gray")
+                                .flow(epubSettings != null && epubSettings.getFlow() != null ? epubSettings.getFlow() : "Paginated")
                                 .build();
-                        return epubViewerPreferencesRepository.save(newPrefs);
+                        return epubViewerPreferenceV2Repository.save(newPrefs);
                     });
 
-            EpubViewerPreferences epubSettings = bookViewerSettings.getEpubSettings();
-            epubPrefs.setFont(epubSettings.getFont());
+            EpubViewerPreferencesV2 epubSettings = bookViewerSettings.getEpubSettingsV2();
+            epubPrefs.setUserId(user.getId());
+            epubPrefs.setBookId(bookId);
+            epubPrefs.setFontFamily(epubSettings.getFontFamily());
             epubPrefs.setFontSize(epubSettings.getFontSize());
-            epubPrefs.setTheme(epubSettings.getTheme());
-            epubPrefs.setFlow(epubSettings.getFlow());
-            epubPrefs.setSpread(epubSettings.getSpread());
-            epubPrefs.setLetterSpacing(epubSettings.getLetterSpacing());
+            epubPrefs.setGap(epubSettings.getGap());
+            epubPrefs.setHyphenate(epubSettings.getHyphenate());
+            epubPrefs.setIsDark(epubSettings.getIsDark());
+            epubPrefs.setJustify(epubSettings.getJustify());
             epubPrefs.setLineHeight(epubSettings.getLineHeight());
-            epubViewerPreferencesRepository.save(epubPrefs);
+            epubPrefs.setMaxBlockSize(epubSettings.getMaxBlockSize());
+            epubPrefs.setMaxColumnCount(epubSettings.getMaxColumnCount());
+            epubPrefs.setMaxInlineSize(epubSettings.getMaxInlineSize());
+            epubPrefs.setTheme(epubSettings.getTheme());
+            epubPrefs.setFlow("paginated");
+            epubViewerPreferenceV2Repository.save(epubPrefs);
 
         } else if (bookEntity.getBookType() == BookFileType.CBX) {
             CbxViewerPreferencesEntity cbxPrefs = cbxViewerPreferencesRepository
@@ -180,7 +200,7 @@ public class BookUpdateService {
     public List<BookStatusUpdateResponse> updateReadStatus(List<Long> bookIds, String status) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
 
-        if(bookIds.size() > 1 && !UserPermission.CAN_BULK_RESET_BOOK_READ_STATUS.isGranted(user.getPermissions())) {
+        if (bookIds.size() > 1 && !UserPermission.CAN_BULK_RESET_BOOK_READ_STATUS.isGranted(user.getPermissions())) {
             throw ApiError.PERMISSION_DENIED.createException(UserPermission.CAN_BULK_RESET_BOOK_READ_STATUS);
         }
 
@@ -235,11 +255,11 @@ public class BookUpdateService {
     public List<BookStatusUpdateResponse> resetProgress(List<Long> bookIds, ResetProgressType type) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
 
-        if(bookIds.size() > 1 && type == ResetProgressType.BOOKLORE && !UserPermission.CAN_BULK_RESET_BOOKLORE_READ_PROGRESS.isGranted(user.getPermissions())) {
+        if (bookIds.size() > 1 && type == ResetProgressType.BOOKLORE && !UserPermission.CAN_BULK_RESET_BOOKLORE_READ_PROGRESS.isGranted(user.getPermissions())) {
             throw ApiError.PERMISSION_DENIED.createException(UserPermission.CAN_BULK_RESET_BOOKLORE_READ_PROGRESS);
         }
 
-        if(bookIds.size() > 1 && type == ResetProgressType.KOREADER && !UserPermission.CAN_BULK_RESET_KOREADER_READ_PROGRESS.isGranted(user.getPermissions())) {
+        if (bookIds.size() > 1 && type == ResetProgressType.KOREADER && !UserPermission.CAN_BULK_RESET_KOREADER_READ_PROGRESS.isGranted(user.getPermissions())) {
             throw ApiError.PERMISSION_DENIED.createException(UserPermission.CAN_BULK_RESET_KOREADER_READ_PROGRESS);
         }
 

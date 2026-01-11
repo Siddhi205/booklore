@@ -1,6 +1,7 @@
 import {Component, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {Subject, takeUntil} from 'rxjs';
+import {firstValueFrom, forkJoin, Subject, takeUntil} from 'rxjs';
+import {switchMap} from 'rxjs/operators';
 import {FoliateLoaderService} from './services/foliate-loader.service';
 import {FoliateViewManagerService} from './services/foliate-view-manager.service';
 import {ReaderStateService} from './services/reader-state.service';
@@ -9,6 +10,8 @@ import {ReaderNavigationService} from './services/reader-navigation.service';
 import {ReaderHeaderComponent} from './reader-header.component';
 import {SettingsDialogComponent} from './settings-dialog.component';
 import {ChaptersDialogComponent} from './chapters-dialog.component';
+import {BookService} from '../../book/service/book.service';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-foliate-reader',
@@ -33,6 +36,7 @@ import {ChaptersDialogComponent} from './chapters-dialog.component';
 export class FoliateReaderComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private hasLoadedOnce = false;
+  protected bookId!: number;
 
   showControls = false;
   showChapters = false;
@@ -49,7 +53,9 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     public viewManager: FoliateViewManagerService,
     public stateService: ReaderStateService,
     private styleService: ReaderStyleService,
-    private navigationService: ReaderNavigationService
+    private navigationService: ReaderNavigationService,
+    private bookService: BookService,
+    private route: ActivatedRoute
   ) {
   }
 
@@ -57,10 +63,10 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     try {
       await this.initializeFoliate();
       await this.setupView();
-      await this.loadBook();
+      await this.loadBookFromAPI();
       this.subscribeToStateChanges();
       this.subscribeToViewEvents();
-      this.navigationService.attachListeners('foliate-container'); // Pass container ID
+      this.navigationService.attachListeners('foliate-container');
     } catch (err) {
     }
   }
@@ -75,23 +81,40 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     if (!container) {
       throw new Error('Container not found');
     }
-
     this.viewManager.createView(container);
   }
 
-  private async loadBook(): Promise<void> {
-    await this.viewManager.loadEpub('/assets/fuck.epub');
+  private async loadBookFromAPI(): Promise<void> {
+    this.bookId = +this.route.snapshot.paramMap.get('bookId')!; // Store bookId
+
+    // Initialize state with user and book settings, then load book
+    const [_, book, fileBlob] = await firstValueFrom(
+      this.stateService.initializeState(this.bookId).pipe(
+        switchMap(() => forkJoin([
+          this.stateService.initializeState(this.bookId),
+          this.bookService.getBookByIdFromAPI(this.bookId, false),
+          this.bookService.getFileContent(this.bookId)
+        ]))
+      )
+    );
+
+    const fileUrl = URL.createObjectURL(fileBlob);
+    await this.viewManager.loadEpub(fileUrl);
     this.applyStyles();
     this.chapters = this.viewManager.getChapters();
     const metadata = await this.viewManager.getMetadata();
     this.bookCoverUrl = metadata.coverUrl ?? null;
-    this.bookTitle = metadata.title ?? '';
-    this.bookAuthors = (metadata.authors ?? []).join(', ');
+    this.bookTitle = book.metadata!.title ?? '';
+    this.bookAuthors = (book.metadata!.authors ?? []).join(', ');
     if (!this.hasLoadedOnce) {
       await this.viewManager.goToStart();
       this.hasLoadedOnce = true;
     }
+    this._fileUrl = fileUrl;
   }
+
+
+  private _fileUrl: string | null = null;
 
   private subscribeToStateChanges(): void {
     this.stateService.state$
@@ -141,5 +164,9 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
     this.viewManager.destroy();
     this.navigationService.detachListeners('foliate-container'); // Pass container ID
+    if (this._fileUrl) {
+      URL.revokeObjectURL(this._fileUrl);
+      this._fileUrl = null;
+    }
   }
 }

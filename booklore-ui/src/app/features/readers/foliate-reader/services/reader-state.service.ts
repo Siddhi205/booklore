@@ -1,6 +1,9 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, forkJoin, Observable} from 'rxjs';
+import {map, tap} from 'rxjs/operators';
 import {Theme, themes} from './reader-themes';
+import {BookService} from '../../../book/service/book.service';
+import {UserService} from '../../../settings/user-management/user.service';
 
 export interface ReaderState {
   lineHeight: number;
@@ -8,7 +11,7 @@ export interface ReaderState {
   hyphenate: boolean;
   maxColumnCount: number;
   gap: number;
-  fontSize: number; // in pixels
+  fontSize: number;
   theme: Theme;
   maxInlineSize: number;
   maxBlockSize: number;
@@ -20,7 +23,7 @@ export interface ReaderState {
   providedIn: 'root'
 })
 export class ReaderStateService {
-  private readonly initialState: ReaderState = {
+  private readonly defaultState: ReaderState = {
     lineHeight: 1.5,
     justify: true,
     hyphenate: true,
@@ -39,7 +42,7 @@ export class ReaderStateService {
     isDark: true,
   };
 
-  private stateSubject = new BehaviorSubject<ReaderState>(this.initialState);
+  private stateSubject = new BehaviorSubject<ReaderState>(this.defaultState);
   public state$ = this.stateSubject.asObservable();
 
   get currentState(): ReaderState {
@@ -53,6 +56,51 @@ export class ReaderStateService {
     {name: 'Monospace', value: 'monospace'},
     {name: 'Cursive', value: 'cursive'},
   ];
+
+  constructor(
+    private bookService: BookService,
+    private userService: UserService
+  ) {}
+
+  initializeState(bookId: number): Observable<void> {
+    return forkJoin([
+      this.userService.getMyself(),
+      this.bookService.getBookSetting(bookId)
+    ]).pipe(
+      tap(([myself, bookSetting]) => {
+        const settingScope = myself.userSettings.perBookSetting.epub;
+        const globalSettings = myself.userSettings.epubReaderSettingV2;
+        const individualSetting = bookSetting?.epubSettingsV2;
+        const settings = settingScope === 'Global' ? globalSettings : (individualSetting || globalSettings);
+        const newState: Partial<ReaderState> = {};
+        if (settings.fontSize != null) newState.fontSize = settings.fontSize;
+        if (settings.lineHeight != null) newState.lineHeight = settings.lineHeight;
+        if (settings.fontFamily != null) newState.fontFamily = settings.fontFamily;
+        if (settings.gap != null) newState.gap = settings.gap;
+        if (settings.hyphenate != null) newState.hyphenate = settings.hyphenate;
+        if (settings.justify != null) newState.justify = settings.justify;
+        if (settings.maxColumnCount != null) newState.maxColumnCount = settings.maxColumnCount;
+        if (settings.maxInlineSize != null) newState.maxInlineSize = settings.maxInlineSize;
+        if (settings.maxBlockSize != null) newState.maxBlockSize = settings.maxBlockSize;
+        if (settings.isDark != null) newState.isDark = settings.isDark;
+        if (settings.theme) {
+          const theme = this.themes.find(t => t.name === settings.theme);
+          if (theme) {
+            newState.theme = {
+              ...theme,
+              fg: settings.isDark ? theme.dark.fg : theme.light.fg,
+              bg: settings.isDark ? theme.dark.bg : theme.light.bg,
+              link: settings.isDark ? theme.dark.link : theme.light.link,
+            };
+          }
+        }
+        if (Object.keys(newState).length > 0) {
+          this.updateState(newState);
+        }
+      }),
+      map(() => void 0)
+    );
+  }
 
   updateLineHeight(delta: number): void {
     const current = this.currentState.lineHeight;
@@ -78,10 +126,6 @@ export class ReaderStateService {
 
   toggleHyphenate(): void {
     this.updateState({hyphenate: !this.currentState.hyphenate});
-  }
-
-  setJustify(justify: boolean): void {
-    this.updateState({justify});
   }
 
   updateFontSize(delta: number): void {
@@ -110,14 +154,12 @@ export class ReaderStateService {
   toggleDarkMode() {
     const currentTheme = this.currentState.theme;
     const newIsDark = !this.currentState.isDark;
-
     const newTheme = {
       ...currentTheme,
       fg: newIsDark ? currentTheme.dark.fg : currentTheme.light.fg,
       bg: newIsDark ? currentTheme.dark.bg : currentTheme.light.bg,
       link: newIsDark ? currentTheme.dark.link : currentTheme.light.link,
     };
-
     this.updateState({theme: newTheme, isDark: newIsDark});
   }
 

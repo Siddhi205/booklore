@@ -89,10 +89,6 @@ export const routes: Routes = [
     component: ChangePasswordComponent
   },
   {
-    path: 'reader/foliate',
-    component: FoliateReaderComponent
-  },
-  {
     path: '**',
     redirectTo: 'login',
     pathMatch: 'full'

@@ -16,16 +16,6 @@ export interface Theme {
 
 export const themes: Theme[] = [
   {
-    name: 'grass', label: 'Grass',
-    light: {fg: '#232c16', bg: '#d7dbbd', link: '#177b4d'},
-    dark: {fg: '#d8deba', bg: '#333627', link: '#a6d608'},
-  },
-  {
-    name: 'angular', label: 'Angular',
-    light: {fg: '#212529', bg: '#ffffff', link: '#dd0031'},
-    dark: {fg: '#dee2e6', bg: '#343a40', link: '#ff4081'},
-  },
-  {
     name: 'default', label: 'Default',
     light: {fg: '#000000', bg: '#ffffff', link: '#0066cc'},
     dark: {fg: '#e0e0e0', bg: '#222222', link: '#77bbee'},
@@ -39,6 +29,16 @@ export const themes: Theme[] = [
     name: 'sepia', label: 'Sepia',
     light: {fg: '#5b4636', bg: '#f1e8d0', link: '#008b8b'},
     dark: {fg: '#ffd595', bg: '#342e25', link: '#48d1cc'},
+  },
+  {
+    name: 'angular', label: 'Angular',
+    light: {fg: '#212529', bg: '#ffffff', link: '#dd0031'},
+    dark: {fg: '#dee2e6', bg: '#343a40', link: '#ff4081'},
+  },
+  {
+    name: 'grass', label: 'Grass',
+    light: {fg: '#232c16', bg: '#d7dbbd', link: '#177b4d'},
+    dark: {fg: '#d8deba', bg: '#333627', link: '#a6d608'},
   },
   {
     name: 'cherry', label: 'Cherry',
@@ -64,5 +64,15 @@ export const themes: Theme[] = [
     name: 'nord', label: 'Nord',
     light: {fg: '#2e3440', bg: '#eceff4', link: '#5e81ac'},
     dark: {fg: '#d8dee9', bg: '#2e3440', link: '#88c0d0'},
+  },
+  {
+    name: 'ocean', label: 'Ocean',
+    light: {fg: '#1b2b34', bg: '#d8f3fa', link: '#0077be'},
+    dark: {fg: '#a7c7e7', bg: '#22313f', link: '#00bfff'},
+  },
+  {
+    name: 'mist', label: 'Mist',
+    light: {fg: '#3a3f4b', bg: '#f5f7fa', link: '#7b8fa1'},
+    dark: {fg: '#e0e4ea', bg: '#434857', link: '#a3b8cc'},
   },
 ];

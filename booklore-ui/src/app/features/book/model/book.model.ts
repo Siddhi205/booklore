@@ -48,6 +48,7 @@ export interface Book extends FileInfo {
   libraryPath?: { id: number };
   alternativeFormats?: AdditionalFile[];
   supplementaryFiles?: AdditionalFile[];
+
   [key: string]: unknown;
 }
 
@@ -150,6 +151,7 @@ export interface BookMetadata {
   tagsLocked?: boolean;
   coverLocked?: boolean;
   reviewsLocked?: boolean;
+
   [key: string]: unknown;
 }
 
@@ -210,6 +212,20 @@ export interface EpubViewerSetting {
   customFontId?: number | null;
 }
 
+export interface EpubViewerSettingV2 {
+  lineHeight: number;
+  justify: boolean;
+  hyphenate: boolean;
+  maxColumnCount: number;
+  gap: number;
+  fontSize: number;
+  theme: string
+  maxInlineSize: number;
+  maxBlockSize: number;
+  fontFamily: string;
+  isDark: boolean;
+}
+
 export interface CbxViewerSetting {
   pageSpread: CbxPageSpread;
   pageViewMode: CbxPageViewMode;
@@ -221,6 +237,7 @@ export interface CbxViewerSetting {
 export interface BookSetting {
   pdfSettings?: PdfViewerSetting;
   epubSettings?: EpubViewerSetting;
+  epubSettingsV2?: EpubViewerSettingV2;
   cbxSettings?: CbxViewerSetting;
   newPdfSettings?: NewPdfReaderSetting;
   [key: string]: unknown;
