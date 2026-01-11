@@ -7,7 +7,6 @@ export class ReaderNavigationService {
   private touchStartY: number | null = null;
 
   constructor(private viewManager: FoliateViewManagerService) {
-    // Bind handlers to preserve 'this'
     this.onKeyDown = this.onKeyDown.bind(this);
     this.onContainerClick = this.onContainerClick.bind(this);
     this.onTouchStart = this.onTouchStart.bind(this);
@@ -43,16 +42,16 @@ export class ReaderNavigationService {
     await this.viewManager.goTo(target);
   }
 
-  async goToHref(href: string): Promise<void> {
-    await this.viewManager.goTo(href);
-  }
-
   prevPage(): void {
     this.viewManager.prev();
   }
 
   nextPage(): void {
     this.viewManager.next();
+  }
+
+  goToSection(section: number): void {
+    this.viewManager.goToSection?.(section);
   }
 
   private onKeyDown = (event: KeyboardEvent) => {

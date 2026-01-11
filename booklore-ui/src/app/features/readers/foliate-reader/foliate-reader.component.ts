@@ -153,32 +153,32 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
             this.applyStyles();
             this.chapters = this.viewManager.getChapters();
             break;
+
           case 'relocate': {
+            const detail = event.detail;
+            console.log('detail', detail);
+            this.currentProgressData = detail;
 
-            console.log(event.detail)
+            const cfi = detail?.cfi ?? null;
+            const href = detail?.pageItem?.href ?? detail?.tocItem?.href ?? null;
+            const percentage = typeof detail?.fraction === 'number' ? detail.fraction * 100 : null;
 
-            this.currentProgressData = event.detail;
-
-            const cfi = event.detail.cfi;
-            const href = event.detail.pageItem.href;
-            const percentage = event.detail.fraction * 100;
-
-            if (cfi && href) {
+            if (cfi && percentage !== null) {
               this.bookPatchService.saveEpubProgress(this.bookId, cfi, href, percentage);
             }
 
-            const chapterLabel = event?.detail?.tocItem?.label;
+            const chapterLabel = detail?.tocItem?.label;
             if (chapterLabel && chapterLabel !== this.currentChapterName) {
               this.currentChapterName = chapterLabel;
             }
-            if (event?.detail?.cfi) {
-              this.bookmarkService.updateCurrentPosition(
-                event.detail.cfi,
-                chapterLabel
-              );
+
+            if (cfi) {
+              this.bookmarkService.updateCurrentPosition(cfi, chapterLabel);
             }
+
             break;
           }
+
           case 'error':
             console.error('Foliate view error:', event.detail);
             break;
@@ -223,6 +223,10 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
           // TODO: Show error message to user
         }
       });
+  }
+
+  async onProgressChange(fraction: number) {
+    await this.viewManager.goToFraction(fraction);
   }
 
   ngOnDestroy(): void {

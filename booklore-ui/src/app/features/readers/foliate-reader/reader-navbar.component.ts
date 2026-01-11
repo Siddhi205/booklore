@@ -1,4 +1,5 @@
-import { Component, HostListener, Input } from '@angular/core';
+import {Component, EventEmitter, HostListener, Input, Output} from '@angular/core';
+import {ReaderNavigationService} from './services/reader-navigation.service';
 
 interface TocItem {
   label: string;
@@ -37,10 +38,18 @@ export class ReaderNavbarComponent {
   private isNavbarHovered = false;
 
   @Input() progressData: RelocateEventDetail | null = null;
+  @Output() progressChange = new EventEmitter<number>();
+
+  constructor(private navigation: ReaderNavigationService) {
+  }
 
   @HostListener('document:mousemove', ['$event'])
   onDocumentMouseMove(event: MouseEvent) {
     const windowHeight = window.innerHeight;
+    if (this.showLocationPopover) {
+      this.navbarVisible = true;
+      return;
+    }
     if (event.clientY >= windowHeight - 60) {
       this.navbarVisible = true;
     } else if (!this.isNavbarHovered) {
@@ -56,8 +65,10 @@ export class ReaderNavbarComponent {
 
   onNavbarMouseLeave() {
     this.isNavbarHovered = false;
-    this.navbarVisible = false;
-    this.showLocationPopover = false;
+    if (!this.showLocationPopover) {
+      this.navbarVisible = false;
+      this.showLocationPopover = false;
+    }
   }
 
   toggleLocationPopover() {
@@ -72,16 +83,12 @@ export class ReaderNavbarComponent {
     return Math.round(this.currentFraction * 100);
   }
 
-  get currentCfi(): string {
-    return this.progressData?.cfi ?? '';
-  }
-
   get timeTotal(): string {
-    return this.formatDuration(this.progressData?.time.total ?? 0);
+    return this.formatDuration((this.progressData?.time.total ?? 0) * 60);
   }
 
   get timeSection(): string {
-    return this.formatDuration(this.progressData?.time.section ?? 0);
+    return this.formatDuration((this.progressData?.time.section ?? 0) * 60);
   }
 
   get locationCurrent(): number {
@@ -101,26 +108,37 @@ export class ReaderNavbarComponent {
   }
 
   get currentPage(): string {
-    return this.progressData?.pageItem?.label ?? '0';
+    return this.progressData?.pageItem?.label ?? 'N/A';
   }
 
-  get currentChapter(): string {
-    return this.progressData?.tocItem?.label ?? '';
-  }
-
-  /**
-   * Handle progress slider change
-   */
   onProgressChange(event: Event) {
     const target = event.target as HTMLInputElement;
     const fraction = parseFloat(target.value) / 100;
-    console.log('Navigate to fraction:', fraction);
-    // TODO: Implement navigation to fraction
+    this.progressChange.emit(fraction);
   }
 
-  /**
-   * Format duration in seconds to human readable string
-   */
+  onFirstSection() {
+    this.navigation.goToSection(0);
+  }
+
+  onPreviousSection(): void {
+    const s = this.progressData?.section;
+    if (!s || s.current <= 0) return;
+    this.navigation.goToSection(s.current - 1);
+  }
+
+  onNextSection(): void {
+    const s = this.progressData?.section;
+    if (!s || s.current >= s.total - 1) return;
+    this.navigation.goToSection(s.current + 1);
+  }
+
+  onLastSection(): void {
+    const s = this.progressData?.section;
+    if (!s || s.total <= 0) return;
+    this.navigation.goToSection(s.total - 1);
+  }
+
   private formatDuration(seconds: number): string {
     if (seconds < 60) return `${Math.round(seconds)} sec`;
     const minutes = Math.floor(seconds / 60);

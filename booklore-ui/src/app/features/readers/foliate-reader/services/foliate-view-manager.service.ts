@@ -67,6 +67,11 @@ export class FoliateViewManagerService {
     await this.view.goTo(target);
   }
 
+  async goToFraction(fraction: number): Promise<void> {
+    if (!this.view) return;
+    await this.view.goToFraction(fraction);
+  }
+
   prev(): void {
     this.view?.prev();
   }
@@ -163,5 +168,29 @@ export class FoliateViewManagerService {
     const blob = await this.getCover();
     if (!blob) return null;
     return URL.createObjectURL(blob);
+  }
+
+  async goToSection(index: number): Promise<void> {
+      await this.goTo(index);
+  }
+
+  async goToPreviousSection(): Promise<void> {
+    const chapters = this.getChapters();
+    if (!chapters.length || !this.view) return;
+    const currentHref = this.view?.currentHref ?? this.view?.currentLocation?.href;
+    const idx = chapters.findIndex(ch => ch.href === currentHref);
+    if (idx > 0) {
+      await this.goTo(chapters[idx - 1].href);
+    }
+  }
+
+  async goToNextSection(): Promise<void> {
+    const chapters = this.getChapters();
+    if (!chapters.length || !this.view) return;
+    const currentHref = this.view?.currentHref ?? this.view?.currentLocation?.href;
+    const idx = chapters.findIndex(ch => ch.href === currentHref);
+    if (idx >= 0 && idx < chapters.length - 1) {
+      await this.goTo(chapters[idx + 1].href);
+    }
   }
 }

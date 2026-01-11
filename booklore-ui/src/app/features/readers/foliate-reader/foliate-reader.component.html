@@ -13,7 +13,10 @@
     <div id="foliate-container" tabindex="0"></div>
   </div>
 
-  <app-reader-navbar [progressData]="currentProgressData"></app-reader-navbar>
+  <app-reader-navbar
+    [progressData]="currentProgressData"
+    (progressChange)="onProgressChange($event)"
+  ></app-reader-navbar>
 
   @if (showChapters) {
     <epub-reader-left-sidebar
