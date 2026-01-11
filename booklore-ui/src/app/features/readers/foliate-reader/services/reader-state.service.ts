@@ -7,6 +7,7 @@ export interface ReaderState {
   hyphenate: boolean;
   maxColumnCount: number;
   gap: number;
+  fontSize: number; // in pixels
 }
 
 @Injectable({
@@ -18,7 +19,8 @@ export class ReaderStateService {
     justify: false,
     hyphenate: true,
     maxColumnCount: 2,
-    gap: 0.05
+    gap: 0.05,
+    fontSize: 16 // default font size
   };
 
   private stateSubject = new BehaviorSubject<ReaderState>(this.initialState);
@@ -58,8 +60,12 @@ export class ReaderStateService {
     this.updateState({justify});
   }
 
+  updateFontSize(delta: number): void {
+    const newFontSize = Math.max(10, Math.min(32, this.currentState.fontSize + delta));
+    this.updateState({fontSize: newFontSize});
+  }
+
   private updateState(partial: Partial<ReaderState>): void {
     this.stateSubject.next({...this.currentState, ...partial});
   }
 }
-

@@ -9,6 +9,11 @@
   <div class="navigation">
     <button (click)="prevPage()">‹ Prev</button>
     <button (click)="nextPage()">Next ›</button>
+    <div class="font-size-controls">
+      <button (click)="decreaseFontSize()">Font Size -</button>
+      <span>{{ fontSize }}px</span>
+      <button (click)="increaseFontSize()">Font Size +</button>
+    </div>
     <div class="line-height-controls">
       <button (click)="decreaseLineHeight()">Line Height -</button>
       <span>{{ lineHeight.toFixed(1) }}</span>

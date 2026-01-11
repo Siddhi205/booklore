@@ -7,13 +7,18 @@ import {ReaderState} from './reader-state.service';
 export class ReaderStyleService {
 
   generateCSS(state: ReaderState): string {
-    const {lineHeight, justify, hyphenate} = state;
+    const {lineHeight, justify, hyphenate, fontSize} = state;
 
     return `
       @namespace epub "http://www.idpf.org/2007/ops";
 
       html {
         line-height: ${lineHeight};
+        font-size: ${fontSize}px;
+      }
+
+      body {
+        font-size: ${fontSize}px;
       }
 
       [align="left"] { text-align: left; }

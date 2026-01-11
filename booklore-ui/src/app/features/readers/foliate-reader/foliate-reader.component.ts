@@ -41,6 +41,10 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     return this.stateService.currentState.gap;
   }
 
+  get fontSize() {
+    return this.stateService.currentState.fontSize;
+  }
+
   constructor(
     private loaderService: FoliateLoaderService,
     private viewManager: FoliateViewManagerService,
@@ -162,6 +166,14 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
 
   setJustify(justify: boolean) {
     this.stateService.setJustify(justify);
+  }
+
+  increaseFontSize() {
+    this.stateService.updateFontSize(1);
+  }
+
+  decreaseFontSize() {
+    this.stateService.updateFontSize(-1);
   }
 
   ngOnDestroy() {
