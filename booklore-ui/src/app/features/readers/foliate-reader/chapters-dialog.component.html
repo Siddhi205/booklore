@@ -1,11 +1,7 @@
 <div class="dialog-overlay" (click)="close.emit()">
   <div class="sidebar" (click)="$event.stopPropagation()">
     <div class="sidebar-header">
-      <h2>Chapters</h2>
-      <button class="close-btn" (click)="close.emit()">✕</button>
-    </div>
-    @if (bookCoverUrl || bookTitle) {
-      <div class="sidebar-book-info">
+      <div class="sidebar-header-book">
         @if (bookCoverUrl) {
           <img
             [src]="bookCoverUrl"
@@ -20,13 +16,52 @@
           }
         </div>
       </div>
-    }
+    </div>
     <div class="sidebar-body">
-      <ul>
-        @for (chapter of chapters; track chapter.href) {
-          <li (click)="onChapterClick(chapter.href)">{{ chapter.label }}</li>
+      @switch (activeTab) {
+        @case ('chapters') {
+          <ul>
+            @for (chapter of chapters; track chapter.href) {
+              <li (click)="onChapterClick(chapter.href)">{{ chapter.label }}</li>
+            }
+          </ul>
         }
-      </ul>
+        @case ('bookmarks') {
+          <div class="empty-tab">No bookmarks yet.</div>
+        }
+        @case ('annotation') {
+          <div class="empty-tab">No annotations yet.</div>
+        }
+      }
+    </div>
+    <div class="sidebar-tabs">
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'chapters'"
+        (click)="activeTab = 'chapters'"
+        aria-label="Chapters"
+      >
+        <span class="tab-icon">&#128214;</span>
+        <span class="tab-label">Chapters</span>
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'bookmarks'"
+        (click)="activeTab = 'bookmarks'"
+        aria-label="Bookmarks"
+      >
+        <span class="tab-icon">&#128278;</span>
+        <span class="tab-label">Bookmarks</span>
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'annotation'"
+        (click)="activeTab = 'annotation'"
+        aria-label="Annotation"
+      >
+        <span class="tab-icon">&#9998;</span>
+        <span class="tab-label">Annotation</span>
+      </button>
     </div>
   </div>
 </div>

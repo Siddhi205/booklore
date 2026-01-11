@@ -1,10 +1,12 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
 
 @Component({
   selector: 'app-chapters-dialog',
   standalone: true,
   templateUrl: './chapters-dialog.component.html',
-  styleUrls: ['./chapters-dialog.component.scss']
+  styleUrls: ['./chapters-dialog.component.scss'],
+  imports: [CommonModule]
 })
 export class ChaptersDialogComponent {
   @Input() bookCoverUrl: string | null = null;
@@ -14,8 +16,9 @@ export class ChaptersDialogComponent {
   @Output() close = new EventEmitter<void>();
   @Output() chapterClick = new EventEmitter<string>();
 
+  activeTab: 'chapters' | 'bookmarks' | 'annotation' = 'chapters';
+
   onChapterClick(href: string) {
     this.chapterClick.emit(href);
   }
 }
-

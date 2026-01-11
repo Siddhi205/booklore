@@ -21,16 +21,16 @@ export interface ReaderState {
 export class ReaderStateService {
   private readonly initialState: ReaderState = {
     lineHeight: 1.5,
-    justify: false,
+    justify: true,
     hyphenate: true,
     maxColumnCount: 2,
     gap: 0.05,
     fontSize: 16,
     theme: {
       ...themes[0],
-      fg: themes[0].light.fg,
-      bg: themes[0].light.bg,
-      link: themes[0].light.link,
+      fg: themes[0].dark.fg,
+      bg: themes[0].dark.bg,
+      link: themes[0].dark.link,
     },
     maxInlineSize: 720,
     maxBlockSize: 1440,
