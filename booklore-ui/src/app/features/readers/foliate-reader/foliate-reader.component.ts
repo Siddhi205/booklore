@@ -38,6 +38,10 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     return this.stateService.currentState.justify;
   }
 
+  get hyphenate() {
+    return this.stateService.currentState.hyphenate;
+  }
+
   get maxColumnCount() {
     return this.stateService.currentState.maxColumnCount;
   }
@@ -102,6 +106,8 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   private async loadBook(): Promise<void> {
     await this.viewManager.loadEpub('/assets/fuck.epub');
     this.applyStyles();
+    // Navigate to the start of the book to show the cover
+    await this.viewManager.goToStart();
   }
 
   private subscribeToStateChanges(): void {
@@ -116,9 +122,14 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     this.viewManager.events$
       .pipe(takeUntil(this.destroy$))
       .subscribe(event => {
-        console.log(event);
         switch (event.type) {
+          case 'load':
+            // Apply styles and go to start when book loads
+            this.applyStyles();
+            this.viewManager.goToStart();
+            break;
           case 'relocate':
+            console.log(event)
             break;
           case 'error':
             break;
@@ -175,6 +186,10 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     this.stateService.toggleJustify();
   }
 
+  toggleHyphenate() {
+    this.stateService.toggleHyphenate();
+  }
+
   toggleLightDark() {
     const currentTheme = this.stateService.currentState.theme;
     const isCurrentlyDark = this.isDarkMode;
@@ -217,6 +232,30 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
       };
       this.stateService.setTheme(newTheme);
     }
+  }
+
+  get maxInlineSize() {
+    return this.stateService.currentState.maxInlineSize;
+  }
+
+  get maxBlockSize() {
+    return this.stateService.currentState.maxBlockSize;
+  }
+
+  increaseMaxInlineSize() {
+    this.stateService.updateMaxInlineSize(40);
+  }
+
+  decreaseMaxInlineSize() {
+    this.stateService.updateMaxInlineSize(-40);
+  }
+
+  increaseMaxBlockSize() {
+    this.stateService.updateMaxBlockSize(60);
+  }
+
+  decreaseMaxBlockSize() {
+    this.stateService.updateMaxBlockSize(-60);
   }
 
   ngOnDestroy() {

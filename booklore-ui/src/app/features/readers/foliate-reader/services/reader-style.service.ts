@@ -134,6 +134,8 @@ export class ReaderStyleService {
 
     renderer.setAttribute('max-column-count', state.maxColumnCount);
     renderer.setAttribute('gap', `${state.gap * 100}%`);
+    renderer.setAttribute('max-inline-size', `${state.maxInlineSize}px`);
+    renderer.setAttribute('max-block-size', `${state.maxBlockSize}px`);
 
     if (typeof renderer.setStyles === 'function') {
       const css = this.generateCSS(state);

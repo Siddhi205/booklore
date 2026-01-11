@@ -47,6 +47,22 @@
               </div>
             </div>
             <div class="control">
+              <label>Max Width</label>
+              <div class="stepper">
+                <button (click)="decreaseMaxInlineSize()">−</button>
+                <span>{{ maxInlineSize }}px</span>
+                <button (click)="increaseMaxInlineSize()">+</button>
+              </div>
+            </div>
+            <div class="control">
+              <label>Max Height</label>
+              <div class="stepper">
+                <button (click)="decreaseMaxBlockSize()">−</button>
+                <span>{{ maxBlockSize }}px</span>
+                <button (click)="increaseMaxBlockSize()">+</button>
+              </div>
+            </div>
+            <div class="control">
               <label>Gap</label>
               <input
                 #gapInput
@@ -63,6 +79,12 @@
               <label>Justify Text</label>
               <button class="toggle" [class.active]="justify" (click)="toggleJustify()">
                 {{ justify ? 'On' : 'Off' }}
+              </button>
+            </div>
+            <div class="control">
+              <label>Hyphenate</label>
+              <button class="toggle" [class.active]="hyphenate" (click)="toggleHyphenate()">
+                {{ hyphenate ? 'On' : 'Off' }}
               </button>
             </div>
           </section>

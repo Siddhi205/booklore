@@ -56,6 +56,12 @@ export class FoliateViewManagerService {
     this.view?.next();
   }
 
+  async goToStart(): Promise<void> {
+    if (this.view) {
+      await this.view.goTo('epubcfi(/6/20!/4,/114/1:238,/154/2/1:7)');
+    }
+  }
+
   destroy(): void {
     this.view?.remove();
     this.view = null;
@@ -75,4 +81,3 @@ export class FoliateViewManagerService {
     });
   }
 }
-

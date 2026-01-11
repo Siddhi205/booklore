@@ -10,6 +10,8 @@ export interface ReaderState {
   gap: number;
   fontSize: number; // in pixels
   theme: Theme;
+  maxInlineSize: number;
+  maxBlockSize: number;
 }
 
 @Injectable({
@@ -29,6 +31,8 @@ export class ReaderStateService {
       bg: themes[0].light.bg,
       link: themes[0].light.link,
     }, // Set light theme as default with correct variant
+    maxInlineSize: 720,
+    maxBlockSize: 1440,
   };
 
   private stateSubject = new BehaviorSubject<ReaderState>(this.initialState);
@@ -75,6 +79,16 @@ export class ReaderStateService {
 
   setTheme(theme: Theme): void {
     this.updateState({theme});
+  }
+
+  updateMaxInlineSize(delta: number): void {
+    const newValue = Math.max(400, Math.min(1600, this.currentState.maxInlineSize + delta));
+    this.updateState({maxInlineSize: newValue});
+  }
+
+  updateMaxBlockSize(delta: number): void {
+    const newValue = Math.max(600, Math.min(2400, this.currentState.maxBlockSize + delta));
+    this.updateState({maxBlockSize: newValue});
   }
 
   private updateState(partial: Partial<ReaderState>): void {
