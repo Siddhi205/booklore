@@ -1,7 +1,7 @@
 import {Component, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {firstValueFrom, forkJoin, Subject, takeUntil} from 'rxjs';
-import {switchMap} from 'rxjs/operators';
+import {forkJoin, Observable, of, Subject, throwError} from 'rxjs';
+import {catchError, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {FoliateLoaderService} from './services/foliate-loader.service';
 import {FoliateViewManagerService} from './services/foliate-view-manager.service';
 import {ReaderStateService} from './services/reader-state.service';
@@ -67,60 +67,74 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   ) {
   }
 
-  async ngOnInit() {
-    try {
-      await this.initializeFoliate();
-      await this.setupView();
-      await this.loadBookFromAPI();
-      this.loadBookmarks();
-      this.subscribeToStateChanges();
-      this.subscribeToViewEvents();
-    } catch (err) {
-      console.error(err);
-    }
+  ngOnInit() {
+    this.initializeFoliate().pipe(
+      switchMap(() => this.setupView()),
+      switchMap(() => this.loadBookFromAPI()),
+      tap(() => {
+        this.loadBookmarks();
+        this.subscribeToStateChanges();
+        this.subscribeToViewEvents();
+      }),
+      catchError(err => {
+        console.error(err);
+        return of(null);
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe();
   }
 
-  private async initializeFoliate(): Promise<void> {
-    await this.loaderService.loadFoliateScript();
-    await this.loaderService.waitForCustomElement();
+  private initializeFoliate(): Observable<void> {
+    return this.loaderService.loadFoliateScript().pipe(
+      switchMap(() => this.loaderService.waitForCustomElement())
+    );
   }
 
-  private async setupView(): Promise<void> {
+  private setupView(): Observable<void> {
     const container = document.getElementById('foliate-container');
     if (!container) {
-      throw new Error('Container not found');
+      return throwError(() => new Error('Container not found'));
     }
     container.setAttribute('tabindex', '0');
     this.viewManager.createView(container);
+    return of(undefined);
   }
 
-  private async loadBookFromAPI(): Promise<void> {
+  private loadBookFromAPI(): Observable<void> {
     this.bookId = +this.route.snapshot.paramMap.get('bookId')!;
-    const [_, book, fileBlob] = await firstValueFrom(
-      this.stateService.initializeState(this.bookId).pipe(
-        switchMap(() => forkJoin([
-          this.stateService.initializeState(this.bookId),
-          this.bookService.getBookByIdFromAPI(this.bookId, false),
-          this.bookService.getFileContent(this.bookId)
-        ]))
-      )
+
+    return this.stateService.initializeState(this.bookId).pipe(
+      switchMap(() => forkJoin({
+        state: this.stateService.initializeState(this.bookId),
+        book: this.bookService.getBookByIdFromAPI(this.bookId, false),
+        fileBlob: this.bookService.getFileContent(this.bookId)
+      })),
+      switchMap(({book, fileBlob}) => {
+        const fileUrl = URL.createObjectURL(fileBlob);
+        this._fileUrl = fileUrl;
+
+        return this.viewManager.loadEpub(fileUrl).pipe(
+          tap(() => {
+            this.applyStyles();
+            this.chapters = this.viewManager.getChapters();
+          }),
+          switchMap(() => this.viewManager.getMetadata()),
+          tap(metadata => {
+            this.bookCoverUrl = metadata.coverUrl ?? null;
+            this.bookTitle = book.metadata!.title ?? '';
+            this.bookAuthors = (book.metadata!.authors ?? []).join(', ');
+          }),
+          switchMap(() => {
+            if (!this.hasLoadedOnce) {
+              this.hasLoadedOnce = true;
+              return this.viewManager.goTo(book.epubProgress!.cfi);
+            }
+            return of(undefined);
+          })
+        );
+      })
     );
-
-    const fileUrl = URL.createObjectURL(fileBlob);
-    await this.viewManager.loadEpub(fileUrl);
-    this.applyStyles();
-    this.chapters = this.viewManager.getChapters();
-    const metadata = await this.viewManager.getMetadata();
-    this.bookCoverUrl = metadata.coverUrl ?? null;
-    this.bookTitle = book.metadata!.title ?? '';
-    this.bookAuthors = (book.metadata!.authors ?? []).join(', ');
-    if (!this.hasLoadedOnce) {
-      await this.viewManager.goTo(book.epubProgress!.cfi);
-      this.hasLoadedOnce = true;
-    }
-    this._fileUrl = fileUrl;
   }
-
 
   private _fileUrl: string | null = null;
 
@@ -189,9 +203,11 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  async onChapterClick(href: string) {
-    await this.viewManager.goTo(href);
-    this.showChapters = false;
+  onChapterClick(href: string) {
+    this.viewManager.goTo(href).pipe(
+      tap(() => this.showChapters = false),
+      takeUntil(this.destroy$)
+    ).subscribe();
   }
 
   onCreateBookmark() {
@@ -200,9 +216,6 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
       .subscribe(success => {
         if (success) {
           this.loadBookmarks();
-          // TODO: Show success message to user
-        } else {
-          // TODO: Show error message to user
         }
       });
   }
@@ -213,16 +226,16 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.loadBookmarks();
-          // TODO: Show success message to user
         },
         error: () => {
-          // TODO: Show error message to user
         }
       });
   }
 
-  async onProgressChange(fraction: number) {
-    await this.viewManager.goToFraction(fraction);
+  onProgressChange(fraction: number) {
+    this.viewManager.goToFraction(fraction)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe();
   }
 
   ngOnDestroy(): void {

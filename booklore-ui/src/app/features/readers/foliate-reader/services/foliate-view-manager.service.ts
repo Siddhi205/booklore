@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
-import {Subject} from 'rxjs';
+import {defer, from, Observable, of, Subject, throwError, timer} from 'rxjs';
+import {catchError, map, switchMap} from 'rxjs/operators';
 
 export interface ViewEvent {
   type: 'load' | 'relocate' | 'error';
@@ -14,6 +15,7 @@ export interface BookMetadata {
   description?: string;
   identifier?: string;
   coverUrl?: string;
+
   [key: string]: any;
 }
 
@@ -38,24 +40,28 @@ export class FoliateViewManagerService {
     this.attachKeyboardHandler();
   }
 
-  async loadEpub(epubPath: string): Promise<void> {
+  loadEpub(epubPath: string): Observable<void> {
     if (!this.view) {
-      throw new Error('View not created');
+      return throwError(() => new Error('View not created'));
     }
 
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    const response = await fetch(epubPath);
-    if (!response.ok) {
-      throw new Error(`EPUB not found: ${response.status}`);
-    }
-
-    const blob = await response.blob();
-    const file = new File([blob], epubPath.split('/').pop() || 'book.epub', {
-      type: 'application/epub+zip'
-    });
-
-    await this.view.open(file);
+    return timer(100).pipe(
+      switchMap(() => from(fetch(epubPath))),
+      switchMap(response => {
+        if (!response.ok) {
+          throw new Error(`EPUB not found: ${response.status}`);
+        }
+        return from(response.blob());
+      }),
+      switchMap(blob => {
+        const file = new File([blob], epubPath.split('/').pop() || 'book.epub', {
+          type: 'application/epub+zip'
+        });
+        return from(this.view.open(file) as Promise<void>);
+      }),
+      map(() => undefined),
+      catchError(err => throwError(() => err))
+    );
   }
 
   destroy(): void {
@@ -67,18 +73,26 @@ export class FoliateViewManagerService {
     this.view = null;
   }
 
-  async goTo(target: string | number): Promise<void> {
-    if (!this.view) return;
-    await this.view.goTo(target);
+  goTo(target: string | number): Observable<void> {
+    if (!this.view) {
+      return of(undefined);
+    }
+    return defer(() => from(this.view.goTo(target) as Promise<void>)).pipe(
+      map(() => undefined)
+    );
   }
 
-  async goToSection(index: number): Promise<void> {
-    await this.goTo(index);
+  goToSection(index: number): Observable<void> {
+    return this.goTo(index);
   }
 
-  async goToFraction(fraction: number): Promise<void> {
-    if (!this.view) return;
-    await this.view.goToFraction(fraction);
+  goToFraction(fraction: number): Observable<void> {
+    if (!this.view) {
+      return of(undefined);
+    }
+    return defer(() => from(this.view.goToFraction(fraction) as Promise<void>)).pipe(
+      map(() => undefined)
+    );
   }
 
   prev(): void {
@@ -95,6 +109,7 @@ export class FoliateViewManagerService {
 
   getChapters(): { label: string; href: string }[] {
     if (!this.view?.book?.toc) return [];
+
     const flattenToc = (items: any[], result: any[] = []): any[] => {
       for (const item of items) {
         result.push(item);
@@ -113,33 +128,38 @@ export class FoliateViewManagerService {
     }));
   }
 
-  async getMetadata(): Promise<BookMetadata> {
-    if (!this.view?.book?.metadata) return {};
+  getMetadata(): Observable<BookMetadata> {
+    if (!this.view?.book?.metadata) {
+      return of({});
+    }
+
     const {metadata} = this.view.book;
 
-    const coverUrl = await this.getCoverUrl();
-
-    return {
-      title: metadata.title,
-      authors: metadata.authors,
-      language: metadata.language,
-      publisher: metadata.publisher,
-      description: metadata.description,
-      identifier: metadata.identifier,
-      coverUrl,
-      ...metadata
-    };
+    return this.getCoverUrl().pipe(
+      map(coverUrl => ({
+        title: metadata.title,
+        authors: metadata.authors,
+        language: metadata.language,
+        publisher: metadata.publisher,
+        description: metadata.description,
+        identifier: metadata.identifier,
+        coverUrl,
+        ...metadata
+      }))
+    );
   }
 
-  async getCover(): Promise<Blob | null> {
-    if (!this.view?.book?.getCover) return null;
-    return await this.view.book.getCover();
+  getCover(): Observable<Blob | null> {
+    if (!this.view?.book?.getCover) {
+      return of(null);
+    }
+    return defer(() => from(this.view.book.getCover() as Promise<Blob | null>));
   }
 
-  async getCoverUrl(): Promise<string | null> {
-    const blob = await this.getCover();
-    if (!blob) return null;
-    return URL.createObjectURL(blob);
+  getCoverUrl(): Observable<string | null> {
+    return this.getCover().pipe(
+      map(blob => blob ? URL.createObjectURL(blob) : null)
+    );
   }
 
   private attachEventListeners(): void {
@@ -170,7 +190,6 @@ export class FoliateViewManagerService {
         event.preventDefault();
       }
     };
-
     document.addEventListener('keydown', this.keydownHandler);
   }
 }
