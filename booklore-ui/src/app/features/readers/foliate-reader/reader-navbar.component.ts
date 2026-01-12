@@ -57,6 +57,31 @@ export class ReaderNavbarComponent {
     }
   }
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const clickedInside = target.closest('.location-popover') || target.closest('.location-btn');
+    if (!clickedInside && this.showLocationPopover) {
+      this.showLocationPopover = false;
+      const windowHeight = window.innerHeight;
+      if (event.clientY < windowHeight - 60 && !this.isNavbarHovered) {
+        this.navbarVisible = false;
+      }
+    }
+  }
+
+  @HostListener('window:blur')
+  onWindowBlur() {
+    setTimeout(() => {
+      if (this.showLocationPopover) {
+        this.showLocationPopover = false;
+        if (!this.isNavbarHovered) {
+          this.navbarVisible = false;
+        }
+      }
+    }, 200);
+  }
+
   onNavbarMouseEnter() {
     this.isNavbarHovered = true;
     this.navbarVisible = true;

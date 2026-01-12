@@ -1,12 +1,31 @@
 <div
   class="reader"
   [style.background-color]="stateService.currentState.theme.bg ?? ''">
+
+  @if (isLoading) {
+    <div class="loader-overlay">
+      <div class="loader-content">
+        <div class="spinner"></div>
+        <p class="loader-text">Loading book...</p>
+      </div>
+    </div>
+  }
+
   <app-reader-header
     [currentChapterName]="currentChapterName"
     [currentTheme]="stateService.currentState.theme"
+    [isDark]="stateService.currentState.isDark"
+    [fontSize]="stateService.currentState.fontSize"
+    [lineHeight]="stateService.currentState.lineHeight"
     (showChapters)="showChapters = true"
     (showControls)="showControls = true"
     (createBookmark)="onCreateBookmark()"
+    (close)="location.back()"
+    (toggleDarkMode)="onToggleDarkMode()"
+    (increaseFontSize)="onIncreaseFontSize()"
+    (decreaseFontSize)="onDecreaseFontSize()"
+    (increaseLineHeight)="onIncreaseLineHeight()"
+    (decreaseLineHeight)="onDecreaseLineHeight()"
   ></app-reader-header>
   <div class="reader-content" style="position: relative;">
     @if (isCurrentCfiBookmarked) {
@@ -31,8 +50,8 @@
 
   <app-reader-navbar
     [progressData]="currentProgressData"
-    (progressChange)="onProgressChange($event)"
-  ></app-reader-navbar>
+    (progressChange)="onProgressChange($event)">
+  </app-reader-navbar>
 
   @if (showChapters) {
     <epub-reader-left-sidebar
@@ -53,7 +72,7 @@
       [stateService]="stateService"
       [viewManager]="viewManager"
       [bookId]="bookId"
-      (close)="showControls = false"
-    ></app-settings-dialog>
+      (close)="showControls = false">
+    </app-settings-dialog>
   }
 </div>

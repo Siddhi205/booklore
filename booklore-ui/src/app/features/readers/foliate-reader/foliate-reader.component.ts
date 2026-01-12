@@ -1,5 +1,5 @@
-import {Component, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnDestroy, OnInit} from '@angular/core';
+import {CommonModule, Location} from '@angular/common';
 import {forkJoin, Observable, of, Subject, throwError} from 'rxjs';
 import {catchError, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {FoliateLoaderService} from './services/foliate-loader.service';
@@ -16,6 +16,7 @@ import {BookMark, BookMarkService} from '../../../shared/service/book-mark.servi
 import {BookPatchService} from '../../book/service/book-patch.service';
 import {ReaderNavbarComponent} from './reader-navbar.component';
 import {EpubCustomFontService} from '../epub-reader/service/epub-custom-font.service';
+import {EpubViewerSettingV2} from '../../book/model/book.model';
 
 @Component({
   selector: 'app-foliate-reader',
@@ -43,6 +44,7 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   private hasLoadedOnce = false;
   protected bookId!: number;
 
+  isLoading = true;
   showControls = false;
   showChapters = false;
   chapters: { label: string; href: string }[] = [];
@@ -58,21 +60,20 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   isCurrentCfiBookmarked = false;
   private currentCfi: string | null = null;
 
-  constructor(
-    private loaderService: FoliateLoaderService,
-    public viewManager: FoliateViewManagerService,
-    public stateService: ReaderStateService,
-    private styleService: ReaderStyleService,
-    private bookService: BookService,
-    private route: ActivatedRoute,
-    private bookmarkService: ReaderBookmarkService,
-    private bookMarkService: BookMarkService,
-    private bookPatchService: BookPatchService,
-    private epubCustomFontService: EpubCustomFontService
-  ) {
-  }
+  protected location = inject(Location);
+  private loaderService = inject(FoliateLoaderService);
+  public viewManager = inject(FoliateViewManagerService);
+  public stateService = inject(ReaderStateService);
+  private styleService = inject(ReaderStyleService);
+  private bookService = inject(BookService);
+  private route = inject(ActivatedRoute);
+  private bookmarkService = inject(ReaderBookmarkService);
+  private bookMarkService = inject(BookMarkService);
+  private bookPatchService = inject(BookPatchService);
+  private epubCustomFontService = inject(EpubCustomFontService);
 
   ngOnInit() {
+    this.isLoading = true;
     this.initializeFoliate().pipe(
       switchMap(() => this.epubCustomFontService.loadAndCacheFonts()),
       tap(() => this.stateService.refreshCustomFonts()),
@@ -82,9 +83,11 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
         this.loadBookmarks();
         this.subscribeToStateChanges();
         this.subscribeToViewEvents();
+        this.isLoading = false;
       }),
       catchError(err => {
         console.error(err);
+        this.isLoading = false;
         return of(null);
       }),
       takeUntil(this.destroy$)
@@ -260,6 +263,50 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     this.viewManager.goToFraction(fraction)
       .pipe(takeUntil(this.destroy$))
       .subscribe();
+  }
+
+  onToggleDarkMode() {
+    this.stateService.toggleDarkMode();
+    this.syncSettingsToBackend();
+  }
+
+  onIncreaseFontSize() {
+    this.stateService.updateFontSize(1);
+    this.syncSettingsToBackend();
+  }
+
+  onDecreaseFontSize() {
+    this.stateService.updateFontSize(-1);
+    this.syncSettingsToBackend();
+  }
+
+  onIncreaseLineHeight() {
+    this.stateService.updateLineHeight(0.1);
+    this.syncSettingsToBackend();
+  }
+
+  onDecreaseLineHeight() {
+    this.stateService.updateLineHeight(-0.1);
+    this.syncSettingsToBackend();
+  }
+
+  private syncSettingsToBackend() {
+    const setting: EpubViewerSettingV2 = {
+      lineHeight: this.stateService.currentState.lineHeight,
+      justify: this.stateService.currentState.justify,
+      hyphenate: this.stateService.currentState.hyphenate,
+      maxColumnCount: this.stateService.currentState.maxColumnCount,
+      gap: this.stateService.currentState.gap,
+      fontSize: this.stateService.currentState.fontSize,
+      theme: typeof this.stateService.currentState.theme === 'object' && 'name' in this.stateService.currentState.theme
+        ? this.stateService.currentState.theme.name
+        : (this.stateService.currentState.theme as any),
+      maxInlineSize: this.stateService.currentState.maxInlineSize,
+      maxBlockSize: this.stateService.currentState.maxBlockSize,
+      fontFamily: this.stateService.currentState.fontFamily,
+      isDark: this.stateService.currentState.isDark,
+    };
+    this.bookService.updateViewerSetting({ epubSettingsV2: setting }, this.bookId).subscribe();
   }
 
   ngOnDestroy(): void {

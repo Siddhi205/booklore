@@ -31,7 +31,7 @@
 </div>
 
 @if (showLocationPopover) {
-  <div class="location-popover" [style.color]="'#ffffff'" [style.background]="'#1a1a1a'">
+  <div class="location-popover" [style.color]="'#ffffff'" [style.background]="'#1a1a1a'" (mousedown)="$event.preventDefault()">
     <div class="popover-content">
       <div class="time-info">
         <div class="time-section">

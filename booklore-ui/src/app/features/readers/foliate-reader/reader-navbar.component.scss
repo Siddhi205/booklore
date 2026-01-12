@@ -112,7 +112,8 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   z-index: 1001;
   min-width: 380px;
-  animation: popoverSlideIn 200ms ease-out;
+  animation: popoverSlideIn 0.15s ease-out;
+  transform-origin: bottom center;
 
   .popover-content {
     padding: 20px;
@@ -252,7 +253,7 @@
 @keyframes popoverSlideIn {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(10px) scale(0.95);
+    transform: translateX(-50%) translateY(4px) scale(0.95);
   }
   to {
     opacity: 1;
