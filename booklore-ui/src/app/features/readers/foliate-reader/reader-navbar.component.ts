@@ -1,5 +1,5 @@
-import {Component, EventEmitter, HostListener, Input, Output} from '@angular/core';
-import {ReaderNavigationService} from './services/reader-navigation.service';
+import {Component, EventEmitter, HostListener, inject, Input, Output} from '@angular/core';
+import {FoliateViewManagerService} from './services/foliate-view-manager.service';
 
 interface TocItem {
   label: string;
@@ -40,8 +40,7 @@ export class ReaderNavbarComponent {
   @Input() progressData: RelocateEventDetail | null = null;
   @Output() progressChange = new EventEmitter<number>();
 
-  constructor(private navigation: ReaderNavigationService) {
-  }
+  private managerService = inject(FoliateViewManagerService);
 
   @HostListener('document:mousemove', ['$event'])
   onDocumentMouseMove(event: MouseEvent) {
@@ -117,26 +116,26 @@ export class ReaderNavbarComponent {
     this.progressChange.emit(fraction);
   }
 
-  onFirstSection() {
-    this.navigation.goToSection(0);
+  async onFirstSection() {
+    await this.managerService.goToSection(0);
   }
 
-  onPreviousSection(): void {
+  async onPreviousSection(): Promise<void> {
     const s = this.progressData?.section;
     if (!s || s.current <= 0) return;
-    this.navigation.goToSection(s.current - 1);
+    await this.managerService.goToSection(s.current - 1);
   }
 
-  onNextSection(): void {
+  async onNextSection(): Promise<void> {
     const s = this.progressData?.section;
     if (!s || s.current >= s.total - 1) return;
-    this.navigation.goToSection(s.current + 1);
+    await this.managerService.goToSection(s.current + 1);
   }
 
-  onLastSection(): void {
+  async onLastSection(): Promise<void> {
     const s = this.progressData?.section;
     if (!s || s.total <= 0) return;
-    this.navigation.goToSection(s.total - 1);
+    await this.managerService.goToSection(s.total - 1);
   }
 
   private formatDuration(seconds: number): string {

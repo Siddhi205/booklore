@@ -14,7 +14,6 @@ export interface BookMetadata {
   description?: string;
   identifier?: string;
   coverUrl?: string;
-
   [key: string]: any;
 }
 
@@ -24,8 +23,9 @@ export interface BookMetadata {
 export class FoliateViewManagerService {
   private view: any;
   private eventSubject = new Subject<ViewEvent>();
-  public events$ = this.eventSubject.asObservable();
   private keydownHandler?: (event: KeyboardEvent) => void;
+
+  public events$ = this.eventSubject.asObservable();
 
   createView(container: HTMLElement): void {
     this.view = document.createElement('foliate-view');
@@ -58,13 +58,22 @@ export class FoliateViewManagerService {
     await this.view.open(file);
   }
 
-  getRenderer(): any {
-    return this.view?.renderer;
+  destroy(): void {
+    if (this.keydownHandler) {
+      document.removeEventListener('keydown', this.keydownHandler);
+      this.keydownHandler = undefined;
+    }
+    this.view?.remove();
+    this.view = null;
   }
 
   async goTo(target: string | number): Promise<void> {
     if (!this.view) return;
     await this.view.goTo(target);
+  }
+
+  async goToSection(index: number): Promise<void> {
+    await this.goTo(index);
   }
 
   async goToFraction(fraction: number): Promise<void> {
@@ -80,45 +89,8 @@ export class FoliateViewManagerService {
     this.view?.next();
   }
 
-  destroy(): void {
-    if (this.keydownHandler) {
-      document.removeEventListener('keydown', this.keydownHandler);
-      this.keydownHandler = undefined;
-    }
-    this.view?.remove();
-    this.view = null;
-  }
-
-  private attachKeyboardHandler(): void {
-    this.keydownHandler = (event: KeyboardEvent) => {
-      const k = event.key;
-      if (k === 'ArrowLeft' || k === 'h' || k === 'PageUp') {
-        this.prev();
-        event.preventDefault();
-      } else if (k === 'ArrowRight' || k === 'l' || k === 'PageDown') {
-        this.next();
-        event.preventDefault();
-      }
-    };
-
-    document.addEventListener('keydown', this.keydownHandler);
-  }
-
-  private attachEventListeners(): void {
-    this.view.addEventListener('load', (e: any) => {
-      this.eventSubject.next({type: 'load', detail: e.detail});
-      if (e.detail?.doc && this.keydownHandler) {
-        e.detail.doc.addEventListener('keydown', this.keydownHandler);
-      }
-    });
-
-    this.view.addEventListener('relocate', (e: any) => {
-      this.eventSubject.next({type: 'relocate', detail: e.detail});
-    });
-
-    this.view.addEventListener('error', (e: any) => {
-      this.eventSubject.next({type: 'error', detail: e.detail});
-    });
+  getRenderer(): any {
+    return this.view?.renderer;
   }
 
   getChapters(): { label: string; href: string }[] {
@@ -170,27 +142,35 @@ export class FoliateViewManagerService {
     return URL.createObjectURL(blob);
   }
 
-  async goToSection(index: number): Promise<void> {
-      await this.goTo(index);
+  private attachEventListeners(): void {
+    this.view.addEventListener('load', (e: any) => {
+      this.eventSubject.next({type: 'load', detail: e.detail});
+      if (e.detail?.doc && this.keydownHandler) {
+        e.detail.doc.addEventListener('keydown', this.keydownHandler);
+      }
+    });
+
+    this.view.addEventListener('relocate', (e: any) => {
+      this.eventSubject.next({type: 'relocate', detail: e.detail});
+    });
+
+    this.view.addEventListener('error', (e: any) => {
+      this.eventSubject.next({type: 'error', detail: e.detail});
+    });
   }
 
-  async goToPreviousSection(): Promise<void> {
-    const chapters = this.getChapters();
-    if (!chapters.length || !this.view) return;
-    const currentHref = this.view?.currentHref ?? this.view?.currentLocation?.href;
-    const idx = chapters.findIndex(ch => ch.href === currentHref);
-    if (idx > 0) {
-      await this.goTo(chapters[idx - 1].href);
-    }
-  }
+  private attachKeyboardHandler(): void {
+    this.keydownHandler = (event: KeyboardEvent) => {
+      const k = event.key;
+      if (k === 'ArrowLeft' || k === 'h' || k === 'PageUp') {
+        this.prev();
+        event.preventDefault();
+      } else if (k === 'ArrowRight' || k === 'l' || k === 'PageDown') {
+        this.next();
+        event.preventDefault();
+      }
+    };
 
-  async goToNextSection(): Promise<void> {
-    const chapters = this.getChapters();
-    if (!chapters.length || !this.view) return;
-    const currentHref = this.view?.currentHref ?? this.view?.currentLocation?.href;
-    const idx = chapters.findIndex(ch => ch.href === currentHref);
-    if (idx >= 0 && idx < chapters.length - 1) {
-      await this.goTo(chapters[idx + 1].href);
-    }
+    document.addEventListener('keydown', this.keydownHandler);
   }
 }
