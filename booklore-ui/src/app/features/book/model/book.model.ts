@@ -222,7 +222,7 @@ export interface EpubViewerSettingV2 {
   theme: string
   maxInlineSize: number;
   maxBlockSize: number;
-  fontFamily: string;
+  fontFamily: string | null;
   isDark: boolean;
 }
 

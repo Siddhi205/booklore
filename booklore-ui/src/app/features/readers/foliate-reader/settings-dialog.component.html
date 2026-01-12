@@ -64,19 +64,6 @@
 
       @if (activeTab === 'typography') {
         <div class="tab-content">
-          <div class="section-header">Font Family</div>
-          <div class="font-grid">
-            @for (font of fonts; track font.value) {
-              <button
-                class="font-option"
-                [class.active]="state.fontFamily === font.value"
-                [style.font-family]="font.value"
-                (click)="setFontFamily(font.value)">
-                <span class="font-preview">Aa</span>
-                <span class="font-name">{{ font.name }}</span>
-              </button>
-            }
-          </div>
 
           <div class="section-header">Font Settings</div>
           <div class="control">
@@ -89,7 +76,6 @@
               </div>
             </div>
           </div>
-
           <div class="control">
             <label>Line Height</label>
             <div class="control-right">
@@ -99,6 +85,20 @@
                 <button (click)="increaseLineHeight()">+</button>
               </div>
             </div>
+          </div>
+
+          <div class="section-header">Font Family</div>
+          <div class="font-grid">
+            @for (font of fonts; track font.value) {
+              <button
+                class="font-option"
+                [class.active]="state.fontFamily === font.value"
+                [style.font-family]="font.value ? getFontFamilyForPreview(font.value) : 'inherit'"
+                (click)="setFontFamily(font.value)">
+                <span class="font-preview">Aa</span>
+                <span class="font-name">{{ font.name }}</span>
+              </button>
+            }
           </div>
         </div>
       }

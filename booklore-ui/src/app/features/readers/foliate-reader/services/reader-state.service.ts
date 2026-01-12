@@ -1,9 +1,10 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {BehaviorSubject, forkJoin, Observable} from 'rxjs';
 import {map, tap} from 'rxjs/operators';
 import {Theme, themes} from './reader-themes';
 import {BookService} from '../../../book/service/book.service';
 import {UserService} from '../../../settings/user-management/user.service';
+import {EpubCustomFontService} from '../../epub-reader/service/epub-custom-font.service';
 
 export interface ReaderState {
   lineHeight: number;
@@ -15,7 +16,7 @@ export interface ReaderState {
   theme: Theme;
   maxInlineSize: number;
   maxBlockSize: number;
-  fontFamily: string;
+  fontFamily: string | null;
   isDark: boolean;
 }
 
@@ -23,6 +24,8 @@ export interface ReaderState {
   providedIn: 'root'
 })
 export class ReaderStateService {
+  private epubCustomFontService = inject(EpubCustomFontService);
+
   private readonly defaultState: ReaderState = {
     lineHeight: 1.5,
     justify: true,
@@ -38,7 +41,7 @@ export class ReaderStateService {
     },
     maxInlineSize: 720,
     maxBlockSize: 1440,
-    fontFamily: 'serif',
+    fontFamily: null,
     isDark: true,
   };
 
@@ -50,17 +53,47 @@ export class ReaderStateService {
   }
 
   readonly themes = themes;
-  readonly fonts = [
+  private fontsSubject = new BehaviorSubject<Array<{ name: string; value: string | null }>>([
+    {name: 'Publisher Default', value: null},
     {name: 'Serif', value: 'serif'},
     {name: 'Sans-Serif', value: 'sans-serif'},
     {name: 'Monospace', value: 'monospace'},
     {name: 'Cursive', value: 'cursive'},
-  ];
+  ]);
 
-  constructor(
-    private bookService: BookService,
-    private userService: UserService
-  ) {}
+  get fonts(): Array<{ name: string; value: string | null }> {
+    return this.fontsSubject.value;
+  }
+
+  constructor(private bookService: BookService, private userService: UserService) {
+    this.loadCustomFontsIntoList();
+  }
+
+  private loadCustomFontsIntoList(): void {
+    const customFonts = this.epubCustomFontService.getCustomFonts();
+    const customFontOptions = customFonts.map(font => ({
+      name: font.fontName.replace(/\.(ttf|otf|woff|woff2)$/i, ''),
+      value: `custom:${font.id}`
+    }));
+
+    const updatedFonts = [
+      ...this.fontsSubject.value,
+      ...customFontOptions
+    ];
+
+    this.fontsSubject.next(updatedFonts);
+  }
+
+  refreshCustomFonts(): void {
+    this.fontsSubject.next([
+      {name: 'Publisher Default', value: null},
+      {name: 'Serif', value: 'serif'},
+      {name: 'Sans-Serif', value: 'sans-serif'},
+      {name: 'Monospace', value: 'monospace'},
+      {name: 'Cursive', value: 'cursive'},
+    ]);
+    this.loadCustomFontsIntoList();
+  }
 
   initializeState(bookId: number): Observable<void> {
     return forkJoin([
@@ -75,7 +108,22 @@ export class ReaderStateService {
         const newState: Partial<ReaderState> = {};
         if (settings.fontSize != null) newState.fontSize = settings.fontSize;
         if (settings.lineHeight != null) newState.lineHeight = settings.lineHeight;
-        if (settings.fontFamily != null) newState.fontFamily = settings.fontFamily;
+
+        if (settings.fontFamily != null) {
+          if (settings.fontFamily.startsWith('custom:')) {
+            newState.fontFamily = settings.fontFamily;
+          } else {
+            const numericId = parseInt(settings.fontFamily, 10);
+            if (!isNaN(numericId) && numericId.toString() === settings.fontFamily) {
+              newState.fontFamily = `custom:${numericId}`;
+            } else {
+              newState.fontFamily = settings.fontFamily;
+            }
+          }
+        } else if ((settings as any).customFontId != null) {
+          newState.fontFamily = `custom:${(settings as any).customFontId}`;
+        }
+
         if (settings.gap != null) newState.gap = settings.gap;
         if (settings.hyphenate != null) newState.hyphenate = settings.hyphenate;
         if (settings.justify != null) newState.justify = settings.justify;
@@ -137,8 +185,14 @@ export class ReaderStateService {
     this.updateState({theme});
   }
 
-  setFontFamily(font: string): void {
-    this.updateState({fontFamily: font});
+  setFontFamily(font: string | null): void {
+    if (font === null) {
+      this.updateState({fontFamily: null});
+    } else if (!font.includes(':') && !isNaN(parseInt(font, 10)) && parseInt(font, 10).toString() === font) {
+      this.updateState({fontFamily: `custom:${font}`});
+    } else {
+      this.updateState({fontFamily: font});
+    }
   }
 
   updateMaxInlineSize(delta: number): void {

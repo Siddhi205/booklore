@@ -15,6 +15,7 @@ import {ActivatedRoute} from '@angular/router';
 import {BookMark, BookMarkService} from '../../../shared/service/book-mark.service';
 import {BookPatchService} from '../../book/service/book-patch.service';
 import {ReaderNavbarComponent} from './reader-navbar.component';
+import {EpubCustomFontService} from '../epub-reader/service/epub-custom-font.service';
 
 @Component({
   selector: 'app-foliate-reader',
@@ -66,12 +67,15 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private bookmarkService: ReaderBookmarkService,
     private bookMarkService: BookMarkService,
-    private bookPatchService: BookPatchService
+    private bookPatchService: BookPatchService,
+    private epubCustomFontService: EpubCustomFontService
   ) {
   }
 
   ngOnInit() {
     this.initializeFoliate().pipe(
+      switchMap(() => this.epubCustomFontService.loadAndCacheFonts()),
+      tap(() => this.stateService.refreshCustomFonts()),
       switchMap(() => this.setupView()),
       switchMap(() => this.loadBookFromAPI()),
       tap(() => {
@@ -170,7 +174,6 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
 
           case 'relocate': {
             const detail = event.detail;
-            console.log('detail', detail);
             this.currentProgressData = detail;
 
             const cfi = detail?.cfi ?? null;
@@ -194,10 +197,6 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
 
             break;
           }
-
-          case 'error':
-            console.error('Foliate view error:', event.detail);
-            break;
         }
       });
   }
@@ -268,6 +267,7 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
     this.viewManager.destroy();
     this.bookmarkService.reset();
+    this.epubCustomFontService.cleanup();
     if (this._fileUrl) {
       URL.revokeObjectURL(this._fileUrl);
       this._fileUrl = null;

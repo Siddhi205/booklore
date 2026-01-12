@@ -39,7 +39,7 @@ export class ReaderBookmarkService {
         return true;
       }),
       catchError(error => {
-        const isDuplicate = error?.status === 409 && error?.message?.includes('Bookmark already exists');
+        const isDuplicate = error?.status === 409;
         this.messageService.add(
           isDuplicate
             ? {

@@ -8,10 +8,10 @@
   <button class="icon-btn" (click)="showChapters.emit()" title="Chapters">
     <i class="pi pi-bars" aria-label="Chapters"></i>
   </button>
-  <span class="chapter-title">{{ currentChapterName || '' }}</span>
   <button class="icon-btn" (click)="createBookmark.emit()" title="Create Bookmark">
     <i class="pi pi-bookmark" aria-label="Create Bookmark"></i>
   </button>
+  <span class="chapter-title">{{ currentChapterName || '' }}</span>
   <button class="icon-btn" (click)="showControls.emit()" title="Settings">
     <i class="pi pi-cog" aria-label="Settings"></i>
   </button>

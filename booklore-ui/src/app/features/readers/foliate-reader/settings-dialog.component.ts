@@ -1,9 +1,11 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output, OnInit, Renderer2, Inject} from '@angular/core';
+import {DOCUMENT} from '@angular/common';
 import {DecimalPipe} from '@angular/common';
 import {ReaderStateService} from './services/reader-state.service';
 import {FoliateViewManagerService} from './services/foliate-view-manager.service';
 import {BookService} from '../../book/service/book.service';
 import {EpubViewerSettingV2} from '../../book/model/book.model';
+import {EpubCustomFontService} from '../epub-reader/service/epub-custom-font.service';
 
 @Component({
   selector: 'app-settings-dialog',
@@ -12,7 +14,7 @@ import {EpubViewerSettingV2} from '../../book/model/book.model';
   templateUrl: './settings-dialog.component.html',
   styleUrls: ['./settings-dialog.component.scss']
 })
-export class SettingsDialogComponent {
+export class SettingsDialogComponent implements OnInit {
   @Input() stateService!: ReaderStateService;
   @Input() viewManager!: FoliateViewManagerService;
   @Input() bookId!: number;
@@ -21,7 +23,20 @@ export class SettingsDialogComponent {
 
   activeTab: 'theme' | 'typography' | 'layout' = 'theme';
 
-  constructor(private bookService: BookService) {
+  constructor(
+    private bookService: BookService,
+    private customFontService: EpubCustomFontService,
+    private renderer: Renderer2,
+    @Inject(DOCUMENT) private document: Document
+  ) {
+  }
+
+  ngOnInit() {
+    this.customFontService.injectCustomFontsStylesheet(this.renderer, this.document);
+  }
+
+  getFontFamilyForPreview(fontValue: string): string {
+    return this.customFontService.getFontFamilyForPreview(fontValue);
   }
 
   get state() {
@@ -53,7 +68,7 @@ export class SettingsDialogComponent {
     this.bookService.updateViewerSetting({epubSettingsV2: setting}, this.bookId).subscribe();
   }
 
-  setFontFamily(value: string) {
+  setFontFamily(value: string | null) {
     this.stateService.setFontFamily(value);
     this.syncSettingsToBackend();
   }

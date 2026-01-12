@@ -1,20 +1,57 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {ReaderState} from './reader-state.service';
+import {EpubCustomFontService} from '../../epub-reader/service/epub-custom-font.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReaderStyleService {
+  private epubCustomFontService = inject(EpubCustomFontService);
 
   generateCSS(state: ReaderState): string {
     const {
       lineHeight, justify, hyphenate, fontSize, theme, fontFamily
     } = state;
-    const userStylesheet = ''; // Placeholder for user styles
-    const overrideFont = false; // Placeholder
-    const mediaActiveClass = 'media-active'; // Placeholder
+    const userStylesheet = '';
+    const overrideFont = false;
+    const mediaActiveClass = 'media-active';
+
+    let fontFaceRule = '';
+    let actualFontFamily = null;
+
+    if (fontFamily !== null) {
+      const customFontId = this.parseCustomFontId(fontFamily);
+
+      if (customFontId !== null) {
+        const customFont = this.epubCustomFontService.getCustomFontById(customFontId);
+        const blobUrl = this.epubCustomFontService.getBlobUrl(customFontId);
+
+        if (customFont && blobUrl) {
+          const sanitizedFontName = this.epubCustomFontService.sanitizeFontName(customFont.fontName);
+          actualFontFamily = `"${sanitizedFontName}", sans-serif`;
+          fontFaceRule = `@font-face {
+    font-family: "${sanitizedFontName}";
+    src: url("${blobUrl}") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}`;
+        }
+      } else {
+        actualFontFamily = fontFamily;
+      }
+    }
+
+    const fontFamilyRule = actualFontFamily ? `
+        body {
+            font-family: ${actualFontFamily} !important;
+        }
+        body * {
+            font-family: inherit !important;
+        }` : '';
 
     const css = `
+${fontFaceRule}
     @namespace epub "http://www.idpf.org/2007/ops";
     @media print {
         html {
@@ -28,8 +65,7 @@ export class ReaderStyleService {
             color-scheme: light dark;
             color: ${theme.fg || theme.light.fg};
             font-size: ${fontSize}px;
-            font-family: ${fontFamily};
-        }
+        }${fontFamilyRule}
         a:any-link {
             color: ${theme.link || theme.light.link};
             text-decoration-color: light-dark(
@@ -122,27 +158,33 @@ export class ReaderStyleService {
         text-align: ${justify ? 'justify' : 'start'} !important;
         hyphens: ${hyphenate ? 'auto' : 'none'};
     }
-    ${overrideFont ? '* { font-family: revert !important }' : ''}
+    ${overrideFont ? '' : ''}
     ${userStylesheet}
     `;
     return css;
+  }
+
+  private parseCustomFontId(fontFamily: string): number | null {
+    if (typeof fontFamily === 'string' && fontFamily.startsWith('custom:')) {
+      const id = parseInt(fontFamily.substring(7), 10);
+      return !isNaN(id) ? id : null;
+    }
+
+    const id = parseInt(fontFamily, 10);
+    return !isNaN(id) && id.toString() === fontFamily ? id : null;
   }
 
   applyStylesToRenderer(renderer: any, state: ReaderState): void {
     if (!renderer) {
       return;
     }
-
     renderer.setAttribute('max-column-count', state.maxColumnCount);
     renderer.setAttribute('gap', `${state.gap * 100}%`);
     renderer.setAttribute('max-inline-size', `${state.maxInlineSize}px`);
     renderer.setAttribute('max-block-size', `${state.maxBlockSize}px`);
-
     if (typeof renderer.setStyles === 'function') {
       const css = this.generateCSS(state);
       renderer.setStyles(css);
-    } else {
-      console.warn('Renderer.setStyles not available');
     }
   }
 }

@@ -64,10 +64,8 @@
     </div>
   </div>
 
-  <!-- Typography Settings -->
   <div class="settings-group">
     <h3 class="group-title">Typography</h3>
-
     <div class="setting-item">
       <div class="setting-info">
         <div class="setting-label-row">
@@ -84,8 +82,7 @@
                 (click)="selectedFont = font.key"
                 [pTooltip]="font.name"
                 tooltipPosition="bottom">
-                <span class="option-text"
-                      [style.font-family]="font.key && font.key.startsWith('custom:') ? getCustomFontName(font.key) : null">
+                <span class="option-text" [style.font-family]="font.key && font.key.startsWith('custom:') ? getCustomFontName(font.key) : null">
                   {{ font.displayName }}
                 </span>
               </button>
