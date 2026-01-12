@@ -21,17 +21,31 @@ export class EpubReaderLeftSidebarComponent {
   @Output() deleteBookmark = new EventEmitter<number>();
 
   activeTab: 'chapters' | 'bookmarks' | 'annotation' = 'chapters';
+  closing = false;
+
+  private closeWithAnimation(callback?: () => void) {
+    this.closing = true;
+    setTimeout(() => {
+      this.closing = false;
+      if (callback) callback();
+      this.close.emit();
+    }, 250);
+  }
 
   onChapterClick(href: string) {
-    this.chapterClick.emit(href);
+    this.closeWithAnimation(() => this.chapterClick.emit(href));
   }
 
   onBookmarkClick(cfi: string) {
-    this.bookmarkClick.emit(cfi);
+    this.closeWithAnimation(() => this.bookmarkClick.emit(cfi));
   }
 
   onDeleteBookmark(event: MouseEvent, bookmarkId: number) {
     event.stopPropagation();
     this.deleteBookmark.emit(bookmarkId);
+  }
+
+  onOverlayClick() {
+    this.closeWithAnimation();
   }
 }

@@ -54,6 +54,9 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   bookAuthors: string = '';
   bookmarks: BookMark[] = [];
 
+  isCurrentCfiBookmarked = false;
+  private currentCfi: string | null = null;
+
   constructor(
     private loaderService: FoliateLoaderService,
     public viewManager: FoliateViewManagerService,
@@ -143,6 +146,7 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(bookmarks => {
         this.bookmarks = bookmarks;
+        this.updateIsCurrentCfiBookmarked();
       });
   }
 
@@ -183,6 +187,8 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
             }
 
             if (cfi) {
+              this.currentCfi = cfi;
+              this.updateIsCurrentCfiBookmarked();
               this.bookmarkService.updateCurrentPosition(cfi, chapterLabel);
             }
 
@@ -194,6 +200,14 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
             break;
         }
       });
+  }
+
+  private updateIsCurrentCfiBookmarked() {
+    if (!this.currentCfi || !this.bookmarks?.length) {
+      this.isCurrentCfiBookmarked = false;
+      return;
+    }
+    this.isCurrentCfiBookmarked = this.bookmarks.some(b => b.cfi === this.currentCfi);
   }
 
   private applyStyles(): void {
@@ -212,7 +226,11 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
 
   onBookmarkClick(cfi: string) {
     this.viewManager.goTo(cfi).pipe(
-      tap(() => this.showChapters = false),
+      tap(() => {
+        this.showChapters = false;
+        this.currentCfi = cfi;
+        this.updateIsCurrentCfiBookmarked();
+      }),
       takeUntil(this.destroy$)
     ).subscribe();
   }

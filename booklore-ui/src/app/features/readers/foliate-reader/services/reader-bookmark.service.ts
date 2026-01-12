@@ -1,21 +1,17 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {Observable, of} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {BookMarkService} from '../../../../shared/service/book-mark.service';
-
-export interface BookmarkContext {
-  bookId: number;
-  cfi: string;
-  title: string;
-}
+import {MessageService} from 'primeng/api';
 
 @Injectable()
 export class ReaderBookmarkService {
   private currentCFI: string | null = null;
   private currentChapterName: string | null = null;
 
-  constructor(private bookMarkService: BookMarkService) {
-  }
+  private bookMarkService = inject(BookMarkService);
+  private messageService = inject(MessageService);
+
 
   updateCurrentPosition(cfi: string, chapterName?: string): void {
     this.currentCFI = cfi;
@@ -35,11 +31,28 @@ export class ReaderBookmarkService {
 
     return this.bookMarkService.createBookmark({bookId, cfi, title}).pipe(
       map(() => {
-        console.log('Bookmark created successfully:', {bookId, cfi, title});
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Bookmark Added',
+          detail: 'Your bookmark was added successfully.'
+        });
         return true;
       }),
-      catchError((error) => {
-        console.error('Failed to create bookmark:', error);
+      catchError(error => {
+        const isDuplicate = error?.status === 409 && error?.message?.includes('Bookmark already exists');
+        this.messageService.add(
+          isDuplicate
+            ? {
+              severity: 'warn',
+              summary: 'Bookmark Already Exists',
+              detail: 'You already have a bookmark at this location.'
+            }
+            : {
+              severity: 'error',
+              summary: 'Unable to Add Bookmark',
+              detail: 'Something went wrong while adding the bookmark. Please try again.'
+            }
+        );
         return of(false);
       })
     );

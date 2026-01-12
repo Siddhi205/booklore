@@ -1,5 +1,9 @@
-<div class="dialog-overlay" (click)="close.emit()">
-  <div class="sidebar" (click)="$event.stopPropagation()">
+<div class="dialog-overlay"
+     (click)="onOverlayClick()"
+     [class.closing]="closing">
+  <div class="sidebar"
+       (click)="$event.stopPropagation()"
+       [class.closing]="closing">
     <div class="sidebar-header">
       <div class="sidebar-header-book">
         @if (bookCoverUrl) {
@@ -16,6 +20,35 @@
           }
         </div>
       </div>
+    </div>
+    <div class="sidebar-tabs">
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'chapters'"
+        (click)="activeTab = 'chapters'"
+        aria-label="Chapters"
+      >
+        <i class="pi pi-book tab-icon"></i>
+        <span class="tab-label">Chapters</span>
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'bookmarks'"
+        (click)="activeTab = 'bookmarks'"
+        aria-label="Bookmarks"
+      >
+        <i class="pi pi-bookmark tab-icon"></i>
+        <span class="tab-label">Bookmarks</span>
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'annotation'"
+        (click)="activeTab = 'annotation'"
+        aria-label="Annotation"
+      >
+        <i class="pi pi-pencil tab-icon"></i>
+        <span class="tab-label">Annotation</span>
+      </button>
     </div>
     <div class="sidebar-body">
       @switch (activeTab) {
@@ -51,35 +84,6 @@
           <div class="empty-tab">No annotations yet.</div>
         }
       }
-    </div>
-    <div class="sidebar-tabs">
-      <button
-        class="tab-btn"
-        [class.active]="activeTab === 'chapters'"
-        (click)="activeTab = 'chapters'"
-        aria-label="Chapters"
-      >
-        <span class="tab-icon">&#128214;</span>
-        <span class="tab-label">Chapters</span>
-      </button>
-      <button
-        class="tab-btn"
-        [class.active]="activeTab === 'bookmarks'"
-        (click)="activeTab = 'bookmarks'"
-        aria-label="Bookmarks"
-      >
-        <span class="tab-icon">&#128278;</span>
-        <span class="tab-label">Bookmarks</span>
-      </button>
-      <button
-        class="tab-btn"
-        [class.active]="activeTab === 'annotation'"
-        (click)="activeTab = 'annotation'"
-        aria-label="Annotation"
-      >
-        <span class="tab-icon">&#9998;</span>
-        <span class="tab-label">Annotation</span>
-      </button>
     </div>
   </div>
 </div>

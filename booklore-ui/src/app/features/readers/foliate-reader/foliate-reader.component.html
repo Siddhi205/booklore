@@ -1,7 +1,6 @@
 <div
   class="reader"
-  [style.background-color]="stateService.currentState.theme.bg ?? ''"
->
+  [style.background-color]="stateService.currentState.theme.bg ?? ''">
   <app-reader-header
     [currentChapterName]="currentChapterName"
     [currentTheme]="stateService.currentState.theme"
@@ -9,7 +8,24 @@
     (showControls)="showControls = true"
     (createBookmark)="onCreateBookmark()"
   ></app-reader-header>
-  <div class="reader-content">
+  <div class="reader-content" style="position: relative;">
+    @if (isCurrentCfiBookmarked) {
+      <div
+        style="
+          position: absolute;
+          top: 0;
+          left: 24px;
+          z-index: 10;
+          width: 48px;
+          height: 64px;
+          background: none;
+          pointer-events: none;
+        ">
+        <svg width="48" height="64" viewBox="0 0 48 64">
+          <polygon points="0,0 48,0 48,64 24,48 0,64" fill="red"/>
+        </svg>
+      </div>
+    }
     <div id="foliate-container" tabindex="0"></div>
   </div>
 
