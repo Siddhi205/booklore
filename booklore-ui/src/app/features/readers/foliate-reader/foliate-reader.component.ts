@@ -210,6 +210,13 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
     ).subscribe();
   }
 
+  onBookmarkClick(cfi: string) {
+    this.viewManager.goTo(cfi).pipe(
+      tap(() => this.showChapters = false),
+      takeUntil(this.destroy$)
+    ).subscribe();
+  }
+
   onCreateBookmark() {
     this.bookmarkService.createBookmarkAtCurrentPosition(this.bookId)
       .pipe(takeUntil(this.destroy$))

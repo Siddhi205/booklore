@@ -5,6 +5,16 @@
   z-index: 12000;
   display: flex;
   align-items: flex-start;
+  animation: fadeIn 200ms ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .sidebar {
@@ -15,13 +25,23 @@
   width: 260px;
   background: rgba(44, 47, 51, 0.97);
   box-shadow: 8px 0 32px rgba(0, 0, 0, 0.18);
-  z-index: 13000;
+  z-index: 13001; // Increased from 13000
   display: flex;
   flex-direction: column;
   color: white;
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;
   overflow: hidden;
+  animation: slideIn 250ms ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 .sidebar-header {
@@ -173,6 +193,8 @@
   align-items: center;
   box-sizing: border-box;
   overflow: hidden;
+  z-index: 13002; // Add higher z-index
+  position: relative; // Ensure stacking context
 }
 
 .tab-btn {
@@ -191,6 +213,7 @@
   align-items: center;
   gap: 2px;
   position: relative;
+  z-index: 13003; // Ensure tab buttons are above navbar
 
   &.active {
     color: #fff;

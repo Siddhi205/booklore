@@ -7,15 +7,7 @@
   (mouseleave)="onNavbarMouseLeave()">
 
   <button class="icon-btn" title="Previous">
-    <span aria-label="Previous">◀</span>
-  </button>
-
-  <button class="icon-btn" title="Back">
-    <span aria-label="Back">↶</span>
-  </button>
-
-  <button class="icon-btn" title="Forward">
-    <span aria-label="Forward">↷</span>
+    <i class="pi pi-caret-left" aria-label="Previous"></i>
   </button>
 
   <div class="progress-section">
@@ -30,11 +22,11 @@
       [max]="100"
       [value]="currentPercentage"
       (input)="onProgressChange($event)"
-      title="Progress" />
+      title="Progress"/>
   </div>
 
   <button class="icon-btn" title="Next">
-    <span aria-label="Next">▶</span>
+    <i class="pi pi-caret-right" aria-label="Next"></i>
   </button>
 </div>
 
@@ -62,7 +54,7 @@
         </div>
         <div class="control-row">
           <label>Location</label>
-          <input type="number" [value]="locationCurrent" />
+          <input type="number" [value]="locationCurrent"/>
           <span>/ {{ locationTotal }}</span>
         </div>
         <div class="control-row">
@@ -75,19 +67,19 @@
 
       <div class="section-navigation">
         <button class="nav-btn" title="First Section" (click)="onFirstSection()">
-          <span>⏮</span>
+          <i class="pi pi-step-backward"></i>
         </button>
         <button class="nav-btn" title="Previous Section" (click)="onPreviousSection()">
-          <span>◀</span>
+          <i class="pi pi-caret-left"></i>
         </button>
         <button class="nav-btn" title="Jump To…">
-          <span>⋮</span>
+          <i class="pi pi-ellipsis-v"></i>
         </button>
         <button class="nav-btn" title="Next Section" (click)="onNextSection()">
-          <span>▶</span>
+          <i class="pi pi-caret-right"></i>
         </button>
         <button class="nav-btn" title="Last Section" (click)="onLastSection()">
-          <span>⏭</span>
+          <i class="pi pi-step-forward"></i>
         </button>
       </div>
     </div>

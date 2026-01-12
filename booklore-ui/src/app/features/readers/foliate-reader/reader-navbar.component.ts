@@ -116,26 +116,26 @@ export class ReaderNavbarComponent {
     this.progressChange.emit(fraction);
   }
 
-  async onFirstSection() {
-    await this.managerService.goToSection(0);
+  onFirstSection() {
+    this.managerService.goToSection(0).subscribe();
   }
 
-  async onPreviousSection(): Promise<void> {
+  onPreviousSection(): void {
     const s = this.progressData?.section;
     if (!s || s.current <= 0) return;
-    await this.managerService.goToSection(s.current - 1);
+    this.managerService.goToSection(s.current - 1).subscribe();
   }
 
-  async onNextSection(): Promise<void> {
+  onNextSection(): void {
     const s = this.progressData?.section;
     if (!s || s.current >= s.total - 1) return;
-    await this.managerService.goToSection(s.current + 1);
+    this.managerService.goToSection(s.current + 1).subscribe();
   }
 
-  async onLastSection(): Promise<void> {
+  onLastSection(): void {
     const s = this.progressData?.section;
     if (!s || s.total <= 0) return;
-    await this.managerService.goToSection(s.total - 1);
+    this.managerService.goToSection(s.total - 1).subscribe();
   }
 
   private formatDuration(seconds: number): string {

@@ -15,11 +15,13 @@
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.13);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.18s;
+  transform: translateY(-100%);
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
 
   &.visible {
     opacity: 1;
     pointer-events: auto;
+    transform: translateY(0);
   }
 
   .icon-btn {
@@ -30,10 +32,16 @@
     cursor: pointer;
     padding: 6px;
     border-radius: 50%;
-    transition: background 0.15s;
+    transition: background 0.15s, box-shadow 0.15s;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.14);
+      box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10);
     }
   }
 
@@ -48,6 +56,6 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-height: 1.2em; // Maintain height even when empty
   }
 }
-

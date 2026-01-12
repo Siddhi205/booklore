@@ -6,15 +6,13 @@
   (mouseenter)="onHeaderMouseEnter()"
   (mouseleave)="onHeaderMouseLeave()">
   <button class="icon-btn" (click)="showChapters.emit()" title="Chapters">
-    <span aria-label="Chapters" class="icon-chapters">☰</span>
+    <i class="pi pi-bars" aria-label="Chapters"></i>
   </button>
-  @if (currentChapterName) {
-    <span class="chapter-title">{{ currentChapterName }}</span>
-  }
+  <span class="chapter-title">{{ currentChapterName || '' }}</span>
   <button class="icon-btn" (click)="showControls.emit()" title="Settings">
-    <span aria-label="Settings" class="icon-settings">⚙</span>
+    <i class="pi pi-cog" aria-label="Settings"></i>
   </button>
   <button class="icon-btn" (click)="createBookmark.emit()" title="Create Bookmark">
-    <span aria-label="Create Bookmark" class="icon-bookmark">🔖</span>
+    <i class="pi pi-bookmark" aria-label="Create Bookmark"></i>
   </button>
 </div>

@@ -73,11 +73,14 @@ export class FoliateViewManagerService {
     this.view = null;
   }
 
-  goTo(target: string | number): Observable<void> {
+  goTo(target?: string | number | null): Observable<void> {
+    const resolvedTarget = target ?? 0;
     if (!this.view) {
       return of(undefined);
     }
-    return defer(() => from(this.view.goTo(target) as Promise<void>)).pipe(
+    return defer(() =>
+      from(this.view.goTo(resolvedTarget) as Promise<void>)
+    ).pipe(
       map(() => undefined)
     );
   }

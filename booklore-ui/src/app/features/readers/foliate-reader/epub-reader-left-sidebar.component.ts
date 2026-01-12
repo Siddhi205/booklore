@@ -17,12 +17,17 @@ export class EpubReaderLeftSidebarComponent {
   @Input() bookmarks: BookMark[] = [];
   @Output() close = new EventEmitter<void>();
   @Output() chapterClick = new EventEmitter<string>();
+  @Output() bookmarkClick = new EventEmitter<string>();
   @Output() deleteBookmark = new EventEmitter<number>();
 
   activeTab: 'chapters' | 'bookmarks' | 'annotation' = 'chapters';
 
   onChapterClick(href: string) {
     this.chapterClick.emit(href);
+  }
+
+  onBookmarkClick(cfi: string) {
+    this.bookmarkClick.emit(cfi);
   }
 
   onDeleteBookmark(event: MouseEvent, bookmarkId: number) {
