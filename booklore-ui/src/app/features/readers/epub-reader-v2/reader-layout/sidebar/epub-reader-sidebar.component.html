@@ -10,13 +10,19 @@
           <img
             [src]="bookCoverUrl"
             alt="Book cover"
-            class="sidebar-book-cover"
+            class="sidebar-book-cover clickable"
+            (click)="onCoverClick()"
+            role="button"
+            tabindex="0"
+            (keydown.enter)="onCoverClick()"
+            (keydown.space)="onCoverClick()"
+            title="View book details"
           />
         }
         <div class="sidebar-book-meta">
-          <div class="sidebar-book-title">{{ bookTitle }}</div>
+          <div class="sidebar-book-title ellipsis">{{ bookTitle }}</div>
           @if (bookAuthors) {
-            <div class="sidebar-book-authors">{{ bookAuthors }}</div>
+            <div class="sidebar-book-authors ellipsis">{{ bookAuthors }}</div>
           }
         </div>
       </div>
@@ -39,15 +45,6 @@
       >
         <i class="pi pi-bookmark tab-icon"></i>
         <span class="tab-label">Bookmarks</span>
-      </button>
-      <button
-        class="tab-btn"
-        [class.active]="activeTab === 'annotation'"
-        (click)="activeTab = 'annotation'"
-        aria-label="Annotation"
-      >
-        <i class="pi pi-pencil tab-icon"></i>
-        <span class="tab-label">Annotation</span>
       </button>
     </div>
     <div class="sidebar-body">
@@ -79,9 +76,6 @@
           } @else {
             <div class="empty-tab">No bookmarks yet.</div>
           }
-        }
-        @case ('annotation') {
-          <div class="empty-tab">No annotations yet.</div>
         }
       }
     </div>

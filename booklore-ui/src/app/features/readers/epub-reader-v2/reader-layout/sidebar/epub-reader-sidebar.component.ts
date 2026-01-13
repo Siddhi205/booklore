@@ -1,6 +1,7 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, inject, Input, Output, OnChanges, SimpleChanges} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BookMark} from '../../../../../shared/service/book-mark.service';
+import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
 
 @Component({
   selector: 'app-epub-reader-sidebar',
@@ -9,8 +10,9 @@ import {BookMark} from '../../../../../shared/service/book-mark.service';
   styleUrls: ['./epub-reader-sidebar.component.scss'],
   imports: [CommonModule]
 })
-export class EpubReaderSidebarComponent {
-  @Input() bookCoverUrl: string | null = null;
+export class EpubReaderSidebarComponent implements OnChanges {
+  @Input() bookId: number | null = null;
+  @Input() coverUpdatedOn: string | undefined;
   @Input() bookTitle: string = '';
   @Input() bookAuthors: string = '';
   @Input() chapters: { label: string; href: string }[] = [];
@@ -19,9 +21,21 @@ export class EpubReaderSidebarComponent {
   @Output() chapterClick = new EventEmitter<string>();
   @Output() bookmarkClick = new EventEmitter<string>();
   @Output() deleteBookmark = new EventEmitter<number>();
+  @Output() coverClick = new EventEmitter<void>();
+
+  private urlHelperService = inject(UrlHelperService);
 
   activeTab: 'chapters' | 'bookmarks' | 'annotation' = 'chapters';
   closing = false;
+  bookCoverUrl: string | null = null;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['bookId'] || changes['coverUpdatedOn']) {
+      this.bookCoverUrl = this.bookId
+        ? this.urlHelperService.getThumbnailUrl(this.bookId, this.coverUpdatedOn)
+        : null;
+    }
+  }
 
   private closeWithAnimation(callback?: () => void) {
     this.closing = true;
@@ -43,6 +57,10 @@ export class EpubReaderSidebarComponent {
   onDeleteBookmark(event: MouseEvent, bookmarkId: number) {
     event.stopPropagation();
     this.deleteBookmark.emit(bookmarkId);
+  }
+
+  onCoverClick() {
+    this.closeWithAnimation(() => this.coverClick.emit());
   }
 
   onOverlayClick() {

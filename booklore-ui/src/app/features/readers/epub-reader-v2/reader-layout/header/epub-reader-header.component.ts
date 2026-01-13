@@ -14,6 +14,7 @@ export class EpubReaderHeaderComponent {
   @Input() lineHeight: number = 1.4;
   @Output() showChapters = new EventEmitter<void>();
   @Output() showControls = new EventEmitter<void>();
+  @Output() showMetadata = new EventEmitter<void>();
   @Output() createBookmark = new EventEmitter<void>();
   @Output() close = new EventEmitter<void>();
   @Output() toggleDarkMode = new EventEmitter<void>();

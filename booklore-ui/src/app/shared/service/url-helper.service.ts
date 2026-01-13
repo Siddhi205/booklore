@@ -26,6 +26,7 @@ export class UrlHelperService {
   }
 
   getThumbnailUrl(bookId: number, coverUpdatedOn?: string): string {
+    console.log('getThumbnailUrl', bookId, coverUpdatedOn);
     if (!coverUpdatedOn) {
       const book = this.bookService.getBookByIdFromState(bookId);
       if (book && book.metadata) {

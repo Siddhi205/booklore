@@ -4,6 +4,7 @@ import com.adityachandel.booklore.config.security.service.AuthenticationService;
 import com.adityachandel.booklore.exception.ApiError;
 import com.adityachandel.booklore.mapper.BookMapper;
 import com.adityachandel.booklore.model.dto.*;
+import com.adityachandel.booklore.model.dto.progress.*;
 import com.adityachandel.booklore.model.dto.request.ReadProgressRequest;
 import com.adityachandel.booklore.model.dto.response.BookStatusUpdateResponse;
 import com.adityachandel.booklore.model.dto.response.PersonalRatingUpdateResponse;
@@ -418,32 +419,32 @@ public class BookUpdateService {
 
     private void setBookProgress(Book book, UserBookProgressEntity progress) {
         if (progress.getKoboProgressPercent() != null) {
-            book.setKoboProgress(com.adityachandel.booklore.model.dto.progress.KoboProgress.builder()
+            book.setKoboProgress(KoboProgress.builder()
                     .percentage(progress.getKoboProgressPercent())
                     .build());
         }
 
         switch (book.getBookType()) {
             case EPUB -> {
-                book.setEpubProgress(com.adityachandel.booklore.model.dto.progress.EpubProgress.builder()
+                book.setEpubProgress(EpubProgress.builder()
                         .cfi(progress.getEpubProgress())
                         .href(progress.getEpubProgressHref())
                         .percentage(progress.getEpubProgressPercent())
                         .build());
-                book.setKoreaderProgress(com.adityachandel.booklore.model.dto.progress.KoProgress.builder()
+                book.setKoreaderProgress(KoProgress.builder()
                         .percentage(progress.getKoreaderProgressPercent() != null ? progress.getKoreaderProgressPercent() * 100 : null)
                         .build());
             }
-            case MOBI, AZW3, FB2 -> book.setEpubProgress(com.adityachandel.booklore.model.dto.progress.EpubProgress.builder()
+            case MOBI, AZW3, FB2 -> book.setEpubProgress(EpubProgress.builder()
                     .cfi(progress.getEpubProgress())
                     .href(progress.getEpubProgressHref())
                     .percentage(progress.getEpubProgressPercent())
                     .build());
-            case PDF -> book.setPdfProgress(com.adityachandel.booklore.model.dto.progress.PdfProgress.builder()
+            case PDF -> book.setPdfProgress(PdfProgress.builder()
                     .page(progress.getPdfProgress())
                     .percentage(progress.getPdfProgressPercent())
                     .build());
-            case CBX -> book.setCbxProgress(com.adityachandel.booklore.model.dto.progress.CbxProgress.builder()
+            case CBX -> book.setCbxProgress(CbxProgress.builder()
                     .page(progress.getCbxProgress())
                     .percentage(progress.getCbxProgressPercent())
                     .build());

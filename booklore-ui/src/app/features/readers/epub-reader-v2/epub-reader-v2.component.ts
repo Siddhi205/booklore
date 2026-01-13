@@ -12,11 +12,12 @@ import {ActivatedRoute} from '@angular/router';
 import {BookMark, BookMarkService} from '../../../shared/service/book-mark.service';
 import {BookPatchService} from '../../book/service/book-patch.service';
 import {EpubCustomFontService} from '../epub-reader/service/epub-custom-font.service';
-import {EpubViewerSettingV2} from '../../book/model/book.model';
+import {Book, EpubViewerSettingV2} from '../../book/model/book.model';
 import {EpubReaderHeaderComponent} from './reader-layout/header/epub-reader-header.component';
 import {EpubReaderSidebarComponent} from './reader-layout/sidebar/epub-reader-sidebar.component';
 import {EpubReaderNavbarComponent} from './reader-layout/navbar/epub-reader-navbar.component';
 import {HeaderSettingsDialogComponent} from './reader-layout/header/header-settings-dialog.component';
+import {BookMetadataDialogComponent} from './reader-layout/header/book-metadata-dialog.component';
 
 @Component({
   selector: 'app-epub-reader-v2',
@@ -25,6 +26,7 @@ import {HeaderSettingsDialogComponent} from './reader-layout/header/header-setti
     CommonModule,
     EpubReaderHeaderComponent,
     HeaderSettingsDialogComponent,
+    BookMetadataDialogComponent,
     EpubReaderSidebarComponent,
     EpubReaderNavbarComponent
   ],
@@ -47,20 +49,19 @@ export class EpubReaderV2Component implements OnInit, OnDestroy {
   isLoading = true;
   showControls = false;
   showChapters = false;
+  showMetadata = false;
   chapters: { label: string; href: string }[] = [];
 
   currentChapterName: string | null = null;
   currentProgressData: any = null;
 
-  bookCoverUrl: string | null = null;
-  bookTitle: string = '';
-  bookAuthors: string = '';
   bookmarks: BookMark[] = [];
+  book: Book | null = null;
+  coverUpdatedOn: string | undefined;
 
   isCurrentCfiBookmarked = false;
   private currentCfi: string | null = null;
 
-  protected location = inject(Location);
   private loaderService = inject(ReaderLoaderService);
   public viewManager = inject(ReaderViewManagerService);
   public stateService = inject(ReaderStateService);
@@ -71,6 +72,7 @@ export class EpubReaderV2Component implements OnInit, OnDestroy {
   private bookMarkService = inject(BookMarkService);
   private bookPatchService = inject(BookPatchService);
   private epubCustomFontService = inject(EpubCustomFontService);
+  protected location = inject(Location);
 
   ngOnInit() {
     this.isLoading = true;
@@ -120,6 +122,8 @@ export class EpubReaderV2Component implements OnInit, OnDestroy {
         fileBlob: this.bookService.getFileContent(this.bookId)
       })),
       switchMap(({book, fileBlob}) => {
+        this.book = book;
+        this.coverUpdatedOn = book.metadata?.coverUpdatedOn;
         const fileUrl = URL.createObjectURL(fileBlob);
         this._fileUrl = fileUrl;
 
@@ -129,11 +133,6 @@ export class EpubReaderV2Component implements OnInit, OnDestroy {
             this.chapters = this.viewManager.getChapters();
           }),
           switchMap(() => this.viewManager.getMetadata()),
-          tap(metadata => {
-            this.bookCoverUrl = metadata.coverUrl ?? null;
-            this.bookTitle = book.metadata!.title ?? '';
-            this.bookAuthors = (book.metadata!.authors ?? []).join(', ');
-          }),
           switchMap(() => {
             if (!this.hasLoadedOnce) {
               this.hasLoadedOnce = true;
