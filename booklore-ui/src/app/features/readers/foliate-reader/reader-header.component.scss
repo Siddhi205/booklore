@@ -68,10 +68,12 @@
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  background: rgba(44, 47, 51, 0.97);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 8px;
-  box-shadow: 8px 8px 32px rgba(0, 0, 0, 0.18);
+  background: rgba(30, 30, 30, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   min-width: 220px;
   z-index: 1000;
   padding: 8px 0;
@@ -97,7 +99,7 @@
   justify-content: space-between;
   padding: 10px 16px;
   font-size: 14px;
-  color: #e7e7e7;
+  color: rgba(255, 255, 255, 0.9);
 
   &.stepper-item {
     gap: 12px;
@@ -115,11 +117,11 @@
   transition: background-color 0.13s, color 0.13s;
   border: none;
   background: transparent;
-  color: #e7e7e7;
+  color: rgba(255, 255, 255, 0.9);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.07);
-    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
   }
 
   i {
@@ -129,7 +131,7 @@
 
 .dropdown-divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.08);
   margin: 4px 0;
 }
 
@@ -141,10 +143,10 @@
   button {
     width: 24px;
     height: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 4px;
     background: transparent;
-    color: #e7e7e7;
+    color: rgba(255, 255, 255, 0.9);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -153,9 +155,9 @@
     transition: all 0.13s;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.07);
-      color: #fff;
-      border-color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.2);
     }
   }
 
@@ -163,7 +165,7 @@
     min-width: 40px;
     text-align: center;
     font-size: 13px;
-    color: #e7e7e7;
+    color: rgba(255, 255, 255, 0.9);
   }
 }
 

@@ -19,7 +19,9 @@
 }
 
 .dialog {
-  background: #1e1e1e;
+  background: rgba(30, 30, 30, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-radius: 12px;
   width: 90%;
   max-width: 520px;
