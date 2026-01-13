@@ -164,7 +164,7 @@ public class BookUpdateService {
 
         Float percentage = null;
         switch (book.getBookType()) {
-            case EPUB -> {
+            case EPUB, FB2 -> {
                 if (request.getEpubProgress() != null) {
                     progress.setEpubProgress(request.getEpubProgress().getCfi());
                     progress.setEpubProgressHref(request.getEpubProgress().getHref());

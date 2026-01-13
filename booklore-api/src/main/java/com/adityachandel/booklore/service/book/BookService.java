@@ -79,6 +79,11 @@ public class BookService {
                         .percentage(progress.getKoreaderProgressPercent() != null ? progress.getKoreaderProgressPercent() * 100 : null)
                         .build());
             }
+            case FB2 -> book.setEpubProgress(EpubProgress.builder()
+                    .cfi(progress.getEpubProgress())
+                    .href(progress.getEpubProgressHref())
+                    .percentage(progress.getEpubProgressPercent())
+                    .build());
             case PDF -> book.setPdfProgress(PdfProgress.builder()
                     .page(progress.getPdfProgress())
                     .percentage(progress.getPdfProgressPercent())
@@ -160,7 +165,6 @@ public class BookService {
                     .percentage(userProgress.getKoboProgressPercent())
                     .build());
         }
-
         if (bookEntity.getBookType() == BookFileType.PDF) {
             book.setPdfProgress(PdfProgress.builder()
                     .page(userProgress.getPdfProgress())
@@ -179,6 +183,13 @@ public class BookService {
                 }
                 book.getKoreaderProgress().setPercentage(userProgress.getKoreaderProgressPercent() * 100);
             }
+        }
+        if (bookEntity.getBookType() == BookFileType.FB2) {
+            book.setEpubProgress(EpubProgress.builder()
+                    .cfi(userProgress.getEpubProgress())
+                    .href(userProgress.getEpubProgressHref())
+                    .percentage(userProgress.getEpubProgressPercent())
+                    .build());
         }
         if (bookEntity.getBookType() == BookFileType.CBX) {
             book.setCbxProgress(CbxProgress.builder()
@@ -244,6 +255,8 @@ public class BookService {
                             .scrollMode(cbxPref.getScrollMode())
                             .backgroundColor(cbxPref.getBackgroundColor())
                             .build()));
+        } else if (bookEntity.getBookType() == BookFileType.FB2) {
+            return BookViewerSettings.builder().build();
         } else {
             throw ApiError.UNSUPPORTED_BOOK_TYPE.createException();
         }
@@ -313,7 +326,6 @@ public class BookService {
                     .body(new ByteArrayResource(inputStream.readAllBytes()));
         }
     }
-
 
     @Transactional
     public ResponseEntity<BookDeletionResponse> deleteBooks(Set<Long> ids) {

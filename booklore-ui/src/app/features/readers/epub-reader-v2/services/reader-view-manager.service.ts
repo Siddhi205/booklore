@@ -156,7 +156,10 @@ export class ReaderViewManagerService {
     if (!this.view?.book?.getCover) {
       return of(null);
     }
-    return defer(() => from(this.view.book.getCover() as Promise<Blob | null>));
+    return defer(() => {
+      const coverPromise = this.view.book.getCover();
+      return coverPromise ? from(coverPromise as Promise<Blob | null>) : of(null);
+    });
   }
 
   getCoverUrl(): Observable<string | null> {

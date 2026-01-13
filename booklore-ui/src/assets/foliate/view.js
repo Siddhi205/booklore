@@ -20,8 +20,26 @@ const isPDF = async file => {
 const isCBZ = ({name, type}) =>
   type === 'application/vnd.comicbook+zip' || name.endsWith('.cbz')
 
-const isFB2 = ({name, type}) =>
-  type === 'application/x-fictionbook+xml' || name.endsWith('.fb2')
+const isFB2 = async file => {
+  const {name, type} = file
+  console.log('[isFB2] name:', name, 'type:', type)
+  if (type === 'application/x-fictionbook+xml' || (name && name.endsWith('.fb2'))) {
+    return true
+  }
+  // Check file content for FB2 XML signature
+  try {
+    const arr = new Uint8Array(await file.slice(0, 5).arrayBuffer())
+    // '<?xml' in UTF-8: 60 63 120 109 108
+    const isXml = arr[0] === 0x3c && arr[1] === 0x3f && arr[2] === 0x78 && arr[3] === 0x6d && arr[4] === 0x6c
+    if (isXml) {
+      console.log('[isFB2] Detected FB2 XML signature in file content')
+      return true
+    }
+  } catch (e) {
+    console.error('[isFB2] Error reading file content:', e)
+  }
+  return false
+}
 
 const isFBZ = ({name, type}) =>
   type === 'application/x-zip-compressed-fb2'
