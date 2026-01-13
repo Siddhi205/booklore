@@ -81,15 +81,15 @@ public class DefaultUserSettingsProvider {
                 .fontFamily("serif")
                 .fontSize(16)
                 .gap(0.05f)
-                .hyphenate(true)
-                .isDark(true)
-                .justify(true)
+                .hyphenate(false)
+                .isDark(false)
+                .justify(false)
                 .lineHeight(1.5f)
                 .maxBlockSize(1440)
                 .maxColumnCount(2)
-                .maxInlineSize(1080)
+                .maxInlineSize(720)
                 .theme("gray")
-                .flow("Paginated")
+                .flow("paginated")
                 .build();
     }
 

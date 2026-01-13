@@ -91,15 +91,15 @@ public class BookUpdateService {
                                 .fontFamily(epubSettings != null && epubSettings.getFontFamily() != null ? epubSettings.getFontFamily() : "serif")
                                 .fontSize(epubSettings != null && epubSettings.getFontSize() != null ? epubSettings.getFontSize() : 16)
                                 .gap(epubSettings != null && epubSettings.getGap() != null ? epubSettings.getGap() : 0.05f)
-                                .hyphenate(epubSettings != null && epubSettings.getHyphenate() != null ? epubSettings.getHyphenate() : true)
-                                .isDark(epubSettings != null && epubSettings.getIsDark() != null ? epubSettings.getIsDark() : true)
-                                .justify(epubSettings != null && epubSettings.getJustify() != null ? epubSettings.getJustify() : true)
+                                .hyphenate(epubSettings != null && epubSettings.getHyphenate() != null ? epubSettings.getHyphenate() : false)
+                                .isDark(epubSettings != null && epubSettings.getIsDark() != null ? epubSettings.getIsDark() : false)
+                                .justify(epubSettings != null && epubSettings.getJustify() != null ? epubSettings.getJustify() : false)
                                 .lineHeight(epubSettings != null && epubSettings.getLineHeight() != null ? epubSettings.getLineHeight() : 1.5f)
-                                .maxBlockSize(epubSettings != null && epubSettings.getMaxBlockSize() != null ? epubSettings.getMaxBlockSize() : 1440)
+                                .maxBlockSize(epubSettings != null && epubSettings.getMaxBlockSize() != null ? epubSettings.getMaxBlockSize() : 720)
                                 .maxColumnCount(epubSettings != null && epubSettings.getMaxColumnCount() != null ? epubSettings.getMaxColumnCount() : 2)
                                 .maxInlineSize(epubSettings != null && epubSettings.getMaxInlineSize() != null ? epubSettings.getMaxInlineSize() : 1080)
                                 .theme(epubSettings != null && epubSettings.getTheme() != null ? epubSettings.getTheme() : "gray")
-                                .flow(epubSettings != null && epubSettings.getFlow() != null ? epubSettings.getFlow() : "Paginated")
+                                .flow(epubSettings != null && epubSettings.getFlow() != null ? epubSettings.getFlow() : "paginated")
                                 .build();
                         return epubViewerPreferenceV2Repository.save(newPrefs);
                     });

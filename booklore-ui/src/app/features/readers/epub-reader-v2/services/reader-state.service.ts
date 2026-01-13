@@ -26,6 +26,14 @@ export interface ReaderState {
 export class ReaderStateService {
   private epubCustomFontService = inject(EpubCustomFontService);
 
+  private readonly BASE_FONTS = [
+    {name: 'Publisher Default', value: null},
+    {name: 'Serif', value: 'serif'},
+    {name: 'Sans-Serif', value: 'sans-serif'},
+    {name: 'Monospace', value: 'monospace'},
+    {name: 'Cursive', value: 'cursive'},
+  ];
+
   private readonly defaultState: ReaderState = {
     lineHeight: 1.5,
     justify: true,
@@ -53,13 +61,7 @@ export class ReaderStateService {
   }
 
   readonly themes = themes;
-  private fontsSubject = new BehaviorSubject<Array<{ name: string; value: string | null }>>([
-    {name: 'Publisher Default', value: null},
-    {name: 'Serif', value: 'serif'},
-    {name: 'Sans-Serif', value: 'sans-serif'},
-    {name: 'Monospace', value: 'monospace'},
-    {name: 'Cursive', value: 'cursive'},
-  ]);
+  private fontsSubject = new BehaviorSubject<Array<{ name: string; value: string | null }>>(this.BASE_FONTS);
 
   get fonts(): Array<{ name: string; value: string | null }> {
     return this.fontsSubject.value;
@@ -85,13 +87,7 @@ export class ReaderStateService {
   }
 
   refreshCustomFonts(): void {
-    this.fontsSubject.next([
-      {name: 'Publisher Default', value: null},
-      {name: 'Serif', value: 'serif'},
-      {name: 'Sans-Serif', value: 'sans-serif'},
-      {name: 'Monospace', value: 'monospace'},
-      {name: 'Cursive', value: 'cursive'},
-    ]);
+    this.fontsSubject.next([...this.BASE_FONTS]);
     this.loadCustomFontsIntoList();
   }
 

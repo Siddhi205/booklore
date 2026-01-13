@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS epub_viewer_preference_v2
     line_height      FLOAT       NOT NULL DEFAULT 1.5,
     max_block_size   INT         NOT NULL DEFAULT 1440,
     max_column_count INT         NOT NULL DEFAULT 2,
-    max_inline_size  INT         NOT NULL DEFAULT 1080,
+    max_inline_size  INT         NOT NULL DEFAULT 720,
     theme            VARCHAR(64) NOT NULL DEFAULT 'gray',
     flow             VARCHAR(32) NOT NULL DEFAULT 'Paginated',
     UNIQUE (user_id, book_id),

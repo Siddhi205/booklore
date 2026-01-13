@@ -67,12 +67,12 @@ export const themes: Theme[] = [
   },
   {
     name: 'ocean', label: 'Ocean',
-    light: {fg: '#1b2b34', bg: '#d8f3fa', link: '#0077be'},
-    dark: {fg: '#a7c7e7', bg: '#22313f', link: '#00bfff'},
+    light: {fg: '#0a4d4d', bg: '#e0f7fa', link: '#00838f'},
+    dark: {fg: '#b2dfdb', bg: '#263238', link: '#4dd0e1'},
   },
   {
     name: 'mist', label: 'Mist',
-    light: {fg: '#3a3f4b', bg: '#f5f7fa', link: '#7b8fa1'},
-    dark: {fg: '#e0e4ea', bg: '#434857', link: '#a3b8cc'},
+    light: {fg: '#4a148c', bg: '#f3e5f5', link: '#7b1fa2'},
+    dark: {fg: '#c7b6dd', bg: '#3a3150', link: '#b39ddb'},
   },
 ];
