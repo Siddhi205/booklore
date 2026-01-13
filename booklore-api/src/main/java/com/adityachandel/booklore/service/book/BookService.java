@@ -79,7 +79,7 @@ public class BookService {
                         .percentage(progress.getKoreaderProgressPercent() != null ? progress.getKoreaderProgressPercent() * 100 : null)
                         .build());
             }
-            case FB2 -> book.setEpubProgress(EpubProgress.builder()
+            case FB2, MOBI, AZW3 -> book.setEpubProgress(EpubProgress.builder()
                     .cfi(progress.getEpubProgress())
                     .href(progress.getEpubProgressHref())
                     .percentage(progress.getEpubProgressPercent())
@@ -184,7 +184,10 @@ public class BookService {
                 book.getKoreaderProgress().setPercentage(userProgress.getKoreaderProgressPercent() * 100);
             }
         }
-        if (bookEntity.getBookType() == BookFileType.FB2) {
+        if (bookEntity.getBookType() == BookFileType.FB2
+                || bookEntity.getBookType() == BookFileType.MOBI
+                || bookEntity.getBookType() == BookFileType.AZW3
+        ) {
             book.setEpubProgress(EpubProgress.builder()
                     .cfi(userProgress.getEpubProgress())
                     .href(userProgress.getEpubProgressHref())
@@ -255,7 +258,10 @@ public class BookService {
                             .scrollMode(cbxPref.getScrollMode())
                             .backgroundColor(cbxPref.getBackgroundColor())
                             .build()));
-        } else if (bookEntity.getBookType() == BookFileType.FB2) {
+        } else if (bookEntity.getBookType() == BookFileType.FB2
+                || bookEntity.getBookType() == BookFileType.MOBI
+                || bookEntity.getBookType() == BookFileType.AZW3
+        ) {
             return BookViewerSettings.builder().build();
         } else {
             throw ApiError.UNSUPPORTED_BOOK_TYPE.createException();

@@ -3,7 +3,7 @@ import {CbxBackgroundColor, CbxFitMode, CbxPageSpread, CbxPageViewMode, CbxScrol
 import {BookReview} from '../components/book-reviews/book-review-service';
 import {ZoomType} from 'ngx-extended-pdf-viewer';
 
-export type BookType = "PDF" | "EPUB" | "CBX" | "FB2";
+export type BookType = "PDF" | "EPUB" | "CBX" | "FB2" | "MOBI" | "AZW3";
 
 export enum AdditionalFileType {
   ALTERNATIVE_FORMAT = 'ALTERNATIVE_FORMAT',
@@ -240,6 +240,7 @@ export interface BookSetting {
   epubSettingsV2?: EpubViewerSettingV2;
   cbxSettings?: CbxViewerSetting;
   newPdfSettings?: NewPdfReaderSetting;
+
   [key: string]: unknown;
 }
 

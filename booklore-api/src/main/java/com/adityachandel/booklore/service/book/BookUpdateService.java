@@ -164,7 +164,7 @@ public class BookUpdateService {
 
         Float percentage = null;
         switch (book.getBookType()) {
-            case EPUB, FB2 -> {
+            case EPUB, FB2, MOBI, AZW3 -> {
                 if (request.getEpubProgress() != null) {
                     progress.setEpubProgress(request.getEpubProgress().getCfi());
                     progress.setEpubProgressHref(request.getEpubProgress().getHref());
@@ -434,6 +434,11 @@ public class BookUpdateService {
                         .percentage(progress.getKoreaderProgressPercent() != null ? progress.getKoreaderProgressPercent() * 100 : null)
                         .build());
             }
+            case MOBI, AZW3, FB2 -> book.setEpubProgress(com.adityachandel.booklore.model.dto.progress.EpubProgress.builder()
+                    .cfi(progress.getEpubProgress())
+                    .href(progress.getEpubProgressHref())
+                    .percentage(progress.getEpubProgressPercent())
+                    .build());
             case PDF -> book.setPdfProgress(com.adityachandel.booklore.model.dto.progress.PdfProgress.builder()
                     .page(progress.getPdfProgress())
                     .percentage(progress.getPdfProgressPercent())

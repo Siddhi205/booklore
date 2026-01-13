@@ -259,7 +259,7 @@ export class BookService {
         ? reader === 'ngx'
           ? 'pdf-reader'
           : 'cbx-reader'
-        : book.bookType === 'EPUB' || book.bookType === 'FB2'
+        : book.bookType === 'EPUB' || book.bookType === 'FB2' || book.bookType === 'MOBI' || book.bookType === 'AZW3'
           ? 'foliate-reader'
           : book.bookType === 'CBX'
             ? 'cbx-reader'
