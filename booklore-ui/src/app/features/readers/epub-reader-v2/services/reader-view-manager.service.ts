@@ -22,7 +22,7 @@ export interface BookMetadata {
 @Injectable({
   providedIn: 'root'
 })
-export class FoliateViewManagerService {
+export class ReaderViewManagerService {
   private view: any;
   private eventSubject = new Subject<ViewEvent>();
   private keydownHandler?: (event: KeyboardEvent) => void;

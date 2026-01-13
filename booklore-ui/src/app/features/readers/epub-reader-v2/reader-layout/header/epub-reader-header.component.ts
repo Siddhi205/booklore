@@ -1,12 +1,12 @@
 import {Component, EventEmitter, HostListener, Input, Output} from '@angular/core';
 
 @Component({
-  selector: 'app-reader-header',
+  selector: 'app-epub-reader-header',
   standalone: true,
-  templateUrl: './reader-header.component.html',
-  styleUrls: ['./reader-header.component.scss']
+  templateUrl: './epub-reader-header.component.html',
+  styleUrls: ['./epub-reader-header.component.scss']
 })
-export class ReaderHeaderComponent {
+export class EpubReaderHeaderComponent {
   @Input() currentChapterName: string | null = null;
   @Input() currentTheme: any;
   @Input() isDark: boolean = false;

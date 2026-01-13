@@ -1,5 +1,5 @@
 import {Component, EventEmitter, HostListener, inject, Input, Output} from '@angular/core';
-import {FoliateViewManagerService} from './services/foliate-view-manager.service';
+import {ReaderViewManagerService} from '../../services/reader-view-manager.service';
 
 interface TocItem {
   label: string;
@@ -27,12 +27,12 @@ interface RelocateEventDetail {
 }
 
 @Component({
-  selector: 'app-reader-navbar',
+  selector: 'app-epub-reader-navbar',
   standalone: true,
-  templateUrl: './reader-navbar.component.html',
-  styleUrls: ['./reader-navbar.component.scss']
+  templateUrl: './epub-reader-navbar.component.html',
+  styleUrls: ['./epub-reader-navbar.component.scss']
 })
-export class ReaderNavbarComponent {
+export class EpubReaderNavbarComponent {
   navbarVisible = false;
   showLocationPopover = false;
   private isNavbarHovered = false;
@@ -40,7 +40,7 @@ export class ReaderNavbarComponent {
   @Input() progressData: RelocateEventDetail | null = null;
   @Output() progressChange = new EventEmitter<number>();
 
-  private managerService = inject(FoliateViewManagerService);
+  private managerService = inject(ReaderViewManagerService);
 
   @HostListener('document:mousemove', ['$event'])
   onDocumentMouseMove(event: MouseEvent) {

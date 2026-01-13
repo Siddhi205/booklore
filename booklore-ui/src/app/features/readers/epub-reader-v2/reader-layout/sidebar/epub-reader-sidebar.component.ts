@@ -1,15 +1,15 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {BookMark} from '../../../shared/service/book-mark.service';
+import {BookMark} from '../../../../../shared/service/book-mark.service';
 
 @Component({
-  selector: 'epub-reader-left-sidebar',
+  selector: 'app-epub-reader-sidebar',
   standalone: true,
-  templateUrl: './epub-reader-left-sidebar.component.html',
-  styleUrls: ['./epub-reader-left-sidebar.component.scss'],
+  templateUrl: './epub-reader-sidebar.component.html',
+  styleUrls: ['./epub-reader-sidebar.component.scss'],
   imports: [CommonModule]
 })
-export class EpubReaderLeftSidebarComponent {
+export class EpubReaderSidebarComponent {
   @Input() bookCoverUrl: string | null = null;
   @Input() bookTitle: string = '';
   @Input() bookAuthors: string = '';

@@ -1,22 +1,22 @@
 import {Component, EventEmitter, Input, Output, OnInit, Renderer2, Inject} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
 import {DecimalPipe} from '@angular/common';
-import {ReaderStateService} from './services/reader-state.service';
-import {FoliateViewManagerService} from './services/foliate-view-manager.service';
-import {BookService} from '../../book/service/book.service';
-import {EpubViewerSettingV2} from '../../book/model/book.model';
-import {EpubCustomFontService} from '../epub-reader/service/epub-custom-font.service';
+import {ReaderStateService} from '../../services/reader-state.service';
+import {ReaderViewManagerService} from '../../services/reader-view-manager.service';
+import {BookService} from '../../../../book/service/book.service';
+import {EpubCustomFontService} from '../../../epub-reader/service/epub-custom-font.service';
+import {EpubViewerSettingV2} from '../../../../book/model/book.model';
 
 @Component({
-  selector: 'app-settings-dialog',
+  selector: 'app-header-settings-dialog',
   standalone: true,
   imports: [DecimalPipe],
-  templateUrl: './settings-dialog.component.html',
-  styleUrls: ['./settings-dialog.component.scss']
+  templateUrl: './header-settings-dialog.component.html',
+  styleUrls: ['./header-settings-dialog.component.scss']
 })
-export class SettingsDialogComponent implements OnInit {
+export class HeaderSettingsDialogComponent implements OnInit {
   @Input() stateService!: ReaderStateService;
-  @Input() viewManager!: FoliateViewManagerService;
+  @Input() viewManager!: ReaderViewManagerService;
   @Input() bookId!: number;
 
   @Output() close = new EventEmitter<void>();

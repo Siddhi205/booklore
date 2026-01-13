@@ -5,7 +5,7 @@ import {switchMap} from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
-export class FoliateLoaderService {
+export class ReaderLoaderService {
   private scriptLoaded = false;
 
   loadFoliateScript(): Observable<void> {

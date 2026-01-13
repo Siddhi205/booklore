@@ -2,44 +2,44 @@ import {Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnDestroy, OnInit} from '@ang
 import {CommonModule, Location} from '@angular/common';
 import {forkJoin, Observable, of, Subject, throwError} from 'rxjs';
 import {catchError, switchMap, takeUntil, tap} from 'rxjs/operators';
-import {FoliateLoaderService} from './services/foliate-loader.service';
-import {FoliateViewManagerService} from './services/foliate-view-manager.service';
+import {ReaderLoaderService} from './services/reader-loader.service';
+import {ReaderViewManagerService} from './services/reader-view-manager.service';
 import {ReaderStateService} from './services/reader-state.service';
 import {ReaderStyleService} from './services/reader-style.service';
 import {ReaderBookmarkService} from './services/reader-bookmark.service';
-import {ReaderHeaderComponent} from './reader-header.component';
-import {SettingsDialogComponent} from './settings-dialog.component';
-import {EpubReaderLeftSidebarComponent} from './epub-reader-left-sidebar.component';
 import {BookService} from '../../book/service/book.service';
 import {ActivatedRoute} from '@angular/router';
 import {BookMark, BookMarkService} from '../../../shared/service/book-mark.service';
 import {BookPatchService} from '../../book/service/book-patch.service';
-import {ReaderNavbarComponent} from './reader-navbar.component';
 import {EpubCustomFontService} from '../epub-reader/service/epub-custom-font.service';
 import {EpubViewerSettingV2} from '../../book/model/book.model';
+import {EpubReaderHeaderComponent} from './reader-layout/header/epub-reader-header.component';
+import {EpubReaderSidebarComponent} from './reader-layout/sidebar/epub-reader-sidebar.component';
+import {EpubReaderNavbarComponent} from './reader-layout/navbar/epub-reader-navbar.component';
+import {HeaderSettingsDialogComponent} from './reader-layout/header/header-settings-dialog.component';
 
 @Component({
-  selector: 'app-foliate-reader',
+  selector: 'app-epub-reader-v2',
   standalone: true,
   imports: [
     CommonModule,
-    ReaderHeaderComponent,
-    SettingsDialogComponent,
-    EpubReaderLeftSidebarComponent,
-    ReaderNavbarComponent
+    EpubReaderHeaderComponent,
+    HeaderSettingsDialogComponent,
+    EpubReaderSidebarComponent,
+    EpubReaderNavbarComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [
-    FoliateLoaderService,
-    FoliateViewManagerService,
+    ReaderLoaderService,
+    ReaderViewManagerService,
     ReaderStateService,
     ReaderStyleService,
     ReaderBookmarkService
   ],
-  templateUrl: './foliate-reader.component.html',
-  styleUrls: ['./foliate-reader.component.scss']
+  templateUrl: './epub-reader-v2.component.html',
+  styleUrls: ['./epub-reader-v2.component.scss']
 })
-export class FoliateReaderComponent implements OnInit, OnDestroy {
+export class EpubReaderV2Component implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private hasLoadedOnce = false;
   protected bookId!: number;
@@ -61,8 +61,8 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
   private currentCfi: string | null = null;
 
   protected location = inject(Location);
-  private loaderService = inject(FoliateLoaderService);
-  public viewManager = inject(FoliateViewManagerService);
+  private loaderService = inject(ReaderLoaderService);
+  public viewManager = inject(ReaderViewManagerService);
   public stateService = inject(ReaderStateService);
   private styleService = inject(ReaderStyleService);
   private bookService = inject(BookService);
@@ -306,7 +306,7 @@ export class FoliateReaderComponent implements OnInit, OnDestroy {
       fontFamily: this.stateService.currentState.fontFamily,
       isDark: this.stateService.currentState.isDark,
     };
-    this.bookService.updateViewerSetting({ epubSettingsV2: setting }, this.bookId).subscribe();
+    this.bookService.updateViewerSetting({epubSettingsV2: setting}, this.bookId).subscribe();
   }
 
   ngOnDestroy(): void {

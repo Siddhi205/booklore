@@ -9,7 +9,7 @@ import {CustomFont} from '../../../../shared/model/custom-font.model';
 import {skip, Subject, takeUntil} from 'rxjs';
 import {addCustomFontsToDropdown} from '../../../../shared/util/custom-font.util';
 import {Skeleton} from 'primeng/skeleton';
-import {themes} from '../../../readers/foliate-reader/services/reader-themes';
+import {themes} from '../../../readers/epub-reader-v2/services/reader-themes';
 
 @Component({
   selector: 'app-epub-reader-preferences-component',

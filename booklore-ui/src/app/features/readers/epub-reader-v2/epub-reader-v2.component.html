@@ -11,7 +11,7 @@
     </div>
   }
 
-  <app-reader-header
+  <app-epub-reader-header
     [currentChapterName]="currentChapterName"
     [currentTheme]="stateService.currentState.theme"
     [isDark]="stateService.currentState.isDark"
@@ -26,7 +26,7 @@
     (decreaseFontSize)="onDecreaseFontSize()"
     (increaseLineHeight)="onIncreaseLineHeight()"
     (decreaseLineHeight)="onDecreaseLineHeight()"
-  ></app-reader-header>
+  ></app-epub-reader-header>
   <div class="reader-content" style="position: relative;">
     @if (isCurrentCfiBookmarked) {
       <div
@@ -48,13 +48,13 @@
     <div id="foliate-container" tabindex="0"></div>
   </div>
 
-  <app-reader-navbar
+  <app-epub-reader-navbar
     [progressData]="currentProgressData"
     (progressChange)="onProgressChange($event)">
-  </app-reader-navbar>
+  </app-epub-reader-navbar>
 
   @if (showChapters) {
-    <epub-reader-left-sidebar
+    <app-epub-reader-sidebar
       [bookCoverUrl]="bookCoverUrl"
       [bookTitle]="bookTitle"
       [bookAuthors]="bookAuthors"
@@ -64,15 +64,15 @@
       (chapterClick)="onChapterClick($event)"
       (bookmarkClick)="onBookmarkClick($event)"
       (deleteBookmark)="onDeleteBookmark($event)"
-    ></epub-reader-left-sidebar>
+    ></app-epub-reader-sidebar>
   }
 
   @if (showControls) {
-    <app-settings-dialog
+    <app-header-settings-dialog
       [stateService]="stateService"
       [viewManager]="viewManager"
       [bookId]="bookId"
       (close)="showControls = false">
-    </app-settings-dialog>
+    </app-header-settings-dialog>
   }
 </div>
