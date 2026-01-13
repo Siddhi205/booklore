@@ -13,22 +13,22 @@ import {BookMark, BookMarkService} from '../../../shared/service/book-mark.servi
 import {BookPatchService} from '../../book/service/book-patch.service';
 import {EpubCustomFontService} from '../epub-reader/service/epub-custom-font.service';
 import {Book, EpubViewerSettingV2} from '../../book/model/book.model';
-import {EpubReaderHeaderComponent} from './reader-layout/header/epub-reader-header.component';
-import {EpubReaderSidebarComponent} from './reader-layout/sidebar/epub-reader-sidebar.component';
-import {EpubReaderNavbarComponent} from './reader-layout/navbar/epub-reader-navbar.component';
-import {HeaderSettingsDialogComponent} from './reader-layout/header/header-settings-dialog.component';
-import {BookMetadataDialogComponent} from './reader-layout/header/book-metadata-dialog.component';
+import {ReaderHeaderComponent} from './reader-layout/header/reader-header.component';
+import {ReaderSidebarComponent} from './reader-layout/sidebar/reader-sidebar.component';
+import {ReaderNavbarComponent} from './reader-layout/navbar/reader-navbar.component';
+import {ReaderSettingsDialogComponent} from './reader-layout/header/reader-settings-dialog.component';
+import {ReaderBookMetadataDialogComponent} from './reader-layout/sidebar/reader-book-metadata-dialog.component';
 
 @Component({
-  selector: 'app-epub-reader-v2',
+  selector: 'app-book-reader',
   standalone: true,
   imports: [
     CommonModule,
-    EpubReaderHeaderComponent,
-    HeaderSettingsDialogComponent,
-    BookMetadataDialogComponent,
-    EpubReaderSidebarComponent,
-    EpubReaderNavbarComponent
+    ReaderHeaderComponent,
+    ReaderSettingsDialogComponent,
+    ReaderBookMetadataDialogComponent,
+    ReaderSidebarComponent,
+    ReaderNavbarComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [
@@ -38,10 +38,10 @@ import {BookMetadataDialogComponent} from './reader-layout/header/book-metadata-
     ReaderStyleService,
     ReaderBookmarkService
   ],
-  templateUrl: './epub-reader-v2.component.html',
-  styleUrls: ['./epub-reader-v2.component.scss']
+  templateUrl: './book-reader.component.html',
+  styleUrls: ['./book-reader.component.scss']
 })
-export class EpubReaderV2Component implements OnInit, OnDestroy {
+export class BookReaderComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private hasLoadedOnce = false;
   protected bookId!: number;

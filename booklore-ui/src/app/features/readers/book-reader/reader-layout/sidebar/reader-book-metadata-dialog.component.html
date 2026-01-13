@@ -7,7 +7,6 @@
 
     <div class="dialog-body">
       <div class="metadata-container">
-        <!-- Left side: Cover -->
         <div class="cover-section">
           @if (bookCoverUrl) {
             <img [src]="bookCoverUrl" [alt]="metadata?.title || 'Book cover'" class="book-cover">
@@ -18,7 +17,6 @@
           }
         </div>
 
-        <!-- Right side: Metadata -->
         <div class="metadata-section">
           <div class="metadata-group">
             <h3 class="section-title">Basic Information</h3>
@@ -82,7 +80,9 @@
                 <div class="metadata-item">
                   <span class="label">Book Number</span>
                   <span class="value">
-                    {{ metadata?.seriesNumber }}@if (metadata?.seriesTotal) { / {{ metadata?.seriesTotal }} }
+                    {{ metadata?.seriesNumber }}@if (metadata?.seriesTotal) {
+                    / {{ metadata?.seriesTotal }}
+                  }
                   </span>
                 </div>
               }

@@ -274,7 +274,6 @@
   position: relative;
 }
 
-/* individual tabs */
 .sidebar-tabs > * {
   flex: 1;
   height: 100%;
@@ -288,19 +287,16 @@
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-/* hover state */
 .sidebar-tabs > *:hover {
   background: rgba(255, 255, 255, 0.05);
   color: #fff;
 }
 
-/* active tab (optional) */
 .sidebar-tabs > *.active {
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
 }
 
-/* vertical divider */
 .sidebar-tabs > *:not(:last-child)::after {
   content: '';
   position: absolute;

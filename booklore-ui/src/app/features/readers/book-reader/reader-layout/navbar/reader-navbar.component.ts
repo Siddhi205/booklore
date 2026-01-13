@@ -27,12 +27,12 @@ interface RelocateEventDetail {
 }
 
 @Component({
-  selector: 'app-epub-reader-navbar',
+  selector: 'app-reader-navbar',
   standalone: true,
-  templateUrl: './epub-reader-navbar.component.html',
-  styleUrls: ['./epub-reader-navbar.component.scss']
+  templateUrl: './reader-navbar.component.html',
+  styleUrls: ['./reader-navbar.component.scss']
 })
-export class EpubReaderNavbarComponent {
+export class ReaderNavbarComponent {
   navbarVisible = false;
   showLocationPopover = false;
   private isNavbarHovered = false;

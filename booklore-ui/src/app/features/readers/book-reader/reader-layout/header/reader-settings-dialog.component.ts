@@ -1,6 +1,5 @@
-import {Component, EventEmitter, Input, Output, OnInit, Renderer2, Inject} from '@angular/core';
-import {DOCUMENT} from '@angular/common';
-import {DecimalPipe} from '@angular/common';
+import {Component, EventEmitter, Inject, Input, OnInit, Output, Renderer2} from '@angular/core';
+import {DecimalPipe, DOCUMENT} from '@angular/common';
 import {ReaderStateService} from '../../services/reader-state.service';
 import {ReaderViewManagerService} from '../../services/reader-view-manager.service';
 import {BookService} from '../../../../book/service/book.service';
@@ -8,13 +7,13 @@ import {EpubCustomFontService} from '../../../epub-reader/service/epub-custom-fo
 import {EpubViewerSettingV2} from '../../../../book/model/book.model';
 
 @Component({
-  selector: 'app-header-settings-dialog',
+  selector: 'app-settings-dialog',
   standalone: true,
   imports: [DecimalPipe],
-  templateUrl: './header-settings-dialog.component.html',
-  styleUrls: ['./header-settings-dialog.component.scss']
+  templateUrl: './reader-settings-dialog.component.html',
+  styleUrls: ['./reader-settings-dialog.component.scss']
 })
-export class HeaderSettingsDialogComponent implements OnInit {
+export class ReaderSettingsDialogComponent implements OnInit {
   @Input() stateService!: ReaderStateService;
   @Input() viewManager!: ReaderViewManagerService;
   @Input() bookId!: number;

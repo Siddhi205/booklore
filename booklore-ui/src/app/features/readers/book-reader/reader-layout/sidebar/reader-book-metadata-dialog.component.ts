@@ -4,13 +4,13 @@ import {Book} from '../../../../book/model/book.model';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
 
 @Component({
-  selector: 'app-book-metadata-dialog',
+  selector: 'app-reader-book-metadata-dialog',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './book-metadata-dialog.component.html',
-  styleUrls: ['./book-metadata-dialog.component.scss']
+  templateUrl: './reader-book-metadata-dialog.component.html',
+  styleUrls: ['./reader-book-metadata-dialog.component.scss']
 })
-export class BookMetadataDialogComponent {
+export class ReaderBookMetadataDialogComponent {
   @Input() book: Book | null = null;
   @Output() close = new EventEmitter<void>();
 

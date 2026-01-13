@@ -1,16 +1,16 @@
-import {Component, EventEmitter, inject, Input, Output, OnChanges, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BookMark} from '../../../../../shared/service/book-mark.service';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
 
 @Component({
-  selector: 'app-epub-reader-sidebar',
+  selector: 'app-reader-sidebar',
   standalone: true,
-  templateUrl: './epub-reader-sidebar.component.html',
-  styleUrls: ['./epub-reader-sidebar.component.scss'],
+  templateUrl: './reader-sidebar.component.html',
+  styleUrls: ['./reader-sidebar.component.scss'],
   imports: [CommonModule]
 })
-export class EpubReaderSidebarComponent implements OnChanges {
+export class ReaderSidebarComponent implements OnChanges {
   @Input() bookId: number | null = null;
   @Input() coverUpdatedOn: string | undefined;
   @Input() bookTitle: string = '';
